@@ -9,11 +9,8 @@ fn main() {
 
     let mut img = RgbImage::new(IMAGE_W, IMAGE_H);
 
-    for x in 15..=17 {
-        for y in 8..24 {
-            img.put_pixel(x, y, Rgb([255, 0, 0]));
-            img.put_pixel(y, x, Rgb([255, 0, 0]));
-        }
+    for (x, y, pixel) in img.enumerate_pixels_mut() {
+        *pixel = Rgb([x as u8, y as u8, 0]);
     }
 
     fs::create_dir("./output");
