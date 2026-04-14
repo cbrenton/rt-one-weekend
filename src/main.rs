@@ -1,26 +1,24 @@
-use image::{Rgb, RgbImage};
-use kdam::{BarExt, tqdm};
-use std::fs;
+use kdam::BarExt;
 
-const IMAGE_W: u32 = 256;
-const IMAGE_H: u32 = 256;
+const IMAGE_W: usize = 256;
+const IMAGE_H: usize = 256;
+
+mod canvas;
+mod color;
 
 fn main() {
-    let filename = "output/test.png";
+    let mut img = canvas::Canvas::new(IMAGE_W, IMAGE_H);
 
-    let mut img = RgbImage::new(IMAGE_W, IMAGE_H);
+    let mut bar = img.progress_bar();
 
-    let mut bar = tqdm!(total = IMAGE_W as usize * IMAGE_H as usize);
-
-    for (x, y, pixel) in img.enumerate_pixels_mut() {
-        *pixel = Rgb([x as u8, y as u8, 0]);
-        bar.update(1).unwrap();
+    for x in 0..IMAGE_W {
+        for y in 0..IMAGE_H {
+            let pixel_color =
+                color::Color::new(x as f32 / IMAGE_W as f32, y as f32 / IMAGE_H as f32, 0.0);
+            img[(x, y)] = pixel_color;
+            bar.update(1).unwrap();
+        }
     }
 
-    // create output dir
-    fs::create_dir("./output");
-
-    // write image
-    img.save("output/test.png");
-    println!("Wrote file to {filename}");
+    img.write();
 }
