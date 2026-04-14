@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 cgmath = "0.18.0"
 image = { version = "0.25.10", default-features = false, features = ["png"] }
+kdam = "0.6.4"
