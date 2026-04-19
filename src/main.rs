@@ -9,10 +9,22 @@ mod color;
 mod ray;
 
 fn ray_color(ray: ray::Ray) -> color::Color {
-    //color::Color::ZERO
+    if hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, &ray) {
+        return color::Color::new(1.0, 0.0, 0.0);
+    }
     let unit_direction = ray.direction().normalize();
     let a = 0.5 * (unit_direction.y + 1.0);
     (1.0 - a) * color::Color::new(1.0, 1.0, 1.0) + a * color::Color::new(0.5, 0.7, 1.0)
+}
+
+fn hit_sphere(center: Vec3, radius: f32, r: &ray::Ray) -> bool {
+    let oc = center - r.origin();
+    let a = r.direction().dot(r.direction());
+    let b = -2.0 * r.direction().dot(oc);
+    let c = oc.dot(oc) - radius * radius;
+    let discriminant = b * b - 4.0 * a * c;
+
+    discriminant >= 0.0
 }
 
 fn main() {
