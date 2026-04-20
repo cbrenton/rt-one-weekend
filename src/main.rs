@@ -6,23 +6,21 @@ use kdam::BarExt;
 const IMAGE_W: f32 = 800.0;
 const ASPECT_RATIO: f32 = 16.0 / 9.0;
 
-mod canvas;
-mod color;
-mod ray;
+mod util;
 
-fn ray_color(r: ray::Ray) -> color::Color {
+fn ray_color(r: util::Ray) -> util::Color {
     let t = hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, &r);
     if t > 0.0 {
         let normal = (r.at(t) - Vec3::new(0.0, 0.0, -1.0)).normalize();
-        return 0.5 * color::Color::new(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0);
+        return 0.5 * util::Color::new(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0);
     }
     let unit_direction = r.direction().normalize();
     let a = 0.5 * (unit_direction.y + 1.0);
-    (1.0 - a) * color::Color::new(1.0, 1.0, 1.0) + a * color::Color::new(0.5, 0.7, 1.0)
+    (1.0 - a) * util::Color::new(1.0, 1.0, 1.0) + a * util::Color::new(0.5, 0.7, 1.0)
 }
 
 // return the value of t where the ray intersects with sphere (or -1 if it doesn't)
-fn hit_sphere(center: Vec3, radius: f32, r: &ray::Ray) -> f32 {
+fn hit_sphere(center: Vec3, radius: f32, r: &util::Ray) -> f32 {
     let oc = center - r.origin();
 
     let a = r.direction().length_squared();
@@ -61,10 +59,10 @@ fn main() {
 
     let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
-    let mut img = canvas::Canvas::new(IMAGE_W as usize, image_h as usize);
+    let mut img = util::Canvas::new(IMAGE_W as usize, image_h as usize);
     let mut bar = img.progress_bar();
 
-    let r = ray::Ray::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 0.0));
+    let r = util::Ray::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 0.0));
 
     for x in 0..img.width {
         for y in 0..img.height {
@@ -72,11 +70,10 @@ fn main() {
                 pixel00_loc + (x as f32 * pixel_delta_u) + (y as f32 * pixel_delta_v);
             let ray_direction = pixel_center - camera_center;
 
-            let r = ray::Ray::new(camera_center, ray_direction);
+            let r = util::Ray::new(camera_center, ray_direction);
 
             let pixel_color = ray_color(r);
 
-            // let pixel_color = color::Color::new(x as f32 / IMAGE_W, y as f32 / image_h, 0.0);
             img[(x, y)] = pixel_color;
             bar.update(1).unwrap();
         }

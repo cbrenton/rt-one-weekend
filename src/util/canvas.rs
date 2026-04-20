@@ -1,4 +1,4 @@
-use crate::color::Color;
+use crate::util::Color;
 use image::{Rgb, RgbImage};
 use kdam::tqdm;
 use std::fs;
