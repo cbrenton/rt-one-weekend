@@ -1,16 +1,16 @@
-use glam::Vec3;
 use crate::util::Ray;
+use glam::Vec3;
 
-use super::{Hittable, HitRecord};
+use super::{HitRecord, Hittable};
 
 pub struct Sphere {
-    pub radius: f32,
     pub center: Vec3,
+    pub radius: f32,
 }
 
 impl Sphere {
-    pub fn new(radius: f32, center: Vec3) -> Self {
-        Self { radius, center }
+    pub fn new(center: Vec3, radius: f32) -> Self {
+        Self { center, radius }
     }
 }
 
@@ -24,7 +24,7 @@ impl Hittable for Sphere {
         let discriminant = h.powi(2) - a * c;
 
         if discriminant < 0.0 {
-            return false
+            return false;
         }
 
         let sqrtd = discriminant.sqrt();
@@ -34,7 +34,7 @@ impl Hittable for Sphere {
         if root <= ray_tmin || ray_tmax <= root {
             root = (h + sqrtd) / a;
             if root <= ray_tmin || ray_tmax <= root {
-                return false
+                return false;
             }
         }
 

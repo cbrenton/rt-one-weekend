@@ -10,15 +10,11 @@ mod util;
 use geom::{Hittable, HittableList};
 use std::default::Default;
 
-fn ray_color(ray: util::Ray) -> util::Color {
+fn ray_color(ray: util::Ray, world: &HittableList) -> util::Color {
     let mut rec = geom::HitRecord::default();
-    let mut objects = HittableList::default();
 
-    let s = geom::Sphere::new(0.5, Vec3::new(0.0, 0.0, -1.0));
-    objects.add(Box::new(s));
-
-    if objects.hit(&ray, 0.0, 1000.0, &mut rec) {
-        0.8 * (rec.normal + util::Color::new(1.0, 1.0, 1.0))
+    if world.hit(&ray, 0.0, 1000.0, &mut rec) {
+        0.5 * (rec.normal + util::Color::new(1.0, 1.0, 1.0))
     } else {
         let unit_direction = ray.direction().normalize();
         let a = 0.5 * (unit_direction.y + 1.0);
@@ -53,6 +49,13 @@ fn main() {
     let mut img = util::Canvas::new(IMAGE_W as usize, image_h as usize);
     let mut bar = img.progress_bar();
 
+    let mut world = HittableList::default();
+    world.add(Box::new(geom::Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)));
+    world.add(Box::new(geom::Sphere::new(
+        Vec3::new(0.0, -100.5, -1.0),
+        100.0,
+    )));
+
     for x in 0..img.width {
         for y in 0..img.height {
             let pixel_center =
@@ -61,7 +64,7 @@ fn main() {
 
             let ray = util::Ray::new(camera_center, ray_direction);
 
-            let pixel_color = ray_color(ray);
+            let pixel_color = ray_color(ray, &world);
 
             img[(x, y)] = pixel_color;
             bar.update(1).unwrap();
