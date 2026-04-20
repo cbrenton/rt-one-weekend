@@ -18,20 +18,12 @@ fn ray_color(ray: util::Ray) -> util::Color {
     objects.add(Box::new(s));
 
     if objects.hit(&ray, 0.0, 1000.0, &mut rec) {
-        return util::Color::new(1.0, 0.0, 1.0);
+        0.8 * (rec.normal + util::Color::new(1.0, 1.0, 1.0))
+    } else {
+        let unit_direction = ray.direction().normalize();
+        let a = 0.5 * (unit_direction.y + 1.0);
+        (1.0 - a) * util::Color::new(1.0, 1.0, 1.0) + a * util::Color::new(0.5, 0.7, 1.0)
     }
-
-    /*
-    // let t = hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, &r);
-    if t > 0.0 {
-        let normal = (ray.at(t) - Vec3::new(0.0, 0.0, -1.0)).normalize();
-        return 0.5 * util::Color::new(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0);
-    }
-    let unit_direction = ray.direction().normalize();
-    let a = 0.5 * (unit_direction.y + 1.0);
-    (1.0 - a) * util::Color::new(1.0, 1.0, 1.0) + a * util::Color::new(0.5, 0.7, 1.0)
-    */
-    util::Color::ZERO
 }
 
 fn main() {
