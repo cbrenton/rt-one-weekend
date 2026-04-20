@@ -1,4 +1,4 @@
-use crate::util::Ray;
+use crate::util::{Interval, Ray};
 use glam::Vec3;
 
 mod sphere;
@@ -7,7 +7,7 @@ pub use sphere::Sphere;
 
 // TODO: move this elsewhere?
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, ray_tmin: f32, ray_tmax: f32, rec: &mut HitRecord) -> bool;
+    fn hit(&self, ray: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
 }
 
 // TODO: move this elsewhere?
@@ -59,13 +59,13 @@ impl HittableList {
 }
 
 impl Hittable for HittableList {
-    fn hit(&self, ray: &Ray, ray_tmin: f32, ray_tmax: f32, rec: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
         let mut tmp_rec = HitRecord::default();
         let mut hit_anything = false;
-        let mut closest_so_far = ray_tmax;
+        let mut closest_so_far = ray_t.max;
 
         for object in &self.objects {
-            if object.hit(ray, ray_tmin, closest_so_far, &mut tmp_rec) {
+            if object.hit(ray, Interval::new(ray_t.min, closest_so_far), &mut tmp_rec) {
                 hit_anything = true;
                 closest_so_far = tmp_rec.t;
                 *rec = tmp_rec;

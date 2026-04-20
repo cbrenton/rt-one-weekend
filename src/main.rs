@@ -13,7 +13,7 @@ use std::default::Default;
 fn ray_color(ray: util::Ray, world: &HittableList) -> util::Color {
     let mut rec = geom::HitRecord::default();
 
-    if world.hit(&ray, 0.0, 1000.0, &mut rec) {
+    if world.hit(&ray, util::Interval::new(0.0, f32::INFINITY), &mut rec) {
         0.5 * (rec.normal + util::Color::new(1.0, 1.0, 1.0))
     } else {
         let unit_direction = ray.direction().normalize();
