@@ -1,3 +1,5 @@
+use std::mem::Discriminant;
+
 use glam::Vec3;
 use kdam::BarExt;
 
@@ -8,23 +10,31 @@ mod canvas;
 mod color;
 mod ray;
 
-fn ray_color(ray: ray::Ray) -> color::Color {
-    if hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, &ray) {
-        return color::Color::new(1.0, 0.0, 0.0);
+fn ray_color(r: ray::Ray) -> color::Color {
+    let t = hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, &r);
+    if t > 0.0 {
+        let normal = (r.at(t) - Vec3::new(0.0, 0.0, -1.0)).normalize();
+        return 0.5 * color::Color::new(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0);
     }
-    let unit_direction = ray.direction().normalize();
+    let unit_direction = r.direction().normalize();
     let a = 0.5 * (unit_direction.y + 1.0);
     (1.0 - a) * color::Color::new(1.0, 1.0, 1.0) + a * color::Color::new(0.5, 0.7, 1.0)
 }
 
-fn hit_sphere(center: Vec3, radius: f32, r: &ray::Ray) -> bool {
+// return the value of t where the ray intersects with sphere (or -1 if it doesn't)
+fn hit_sphere(center: Vec3, radius: f32, r: &ray::Ray) -> f32 {
     let oc = center - r.origin();
-    let a = r.direction().dot(r.direction());
-    let b = -2.0 * r.direction().dot(oc);
-    let c = oc.dot(oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
 
-    discriminant >= 0.0
+    let a = r.direction().length_squared();
+    let h = r.direction().dot(oc);
+    let c = oc.length_squared() - radius.powi(2);
+    let discriminant = h.powi(2) - a * c;
+
+    if discriminant < 0.0 {
+        -1.0
+    } else {
+        (h - discriminant.sqrt()) / a
+    }
 }
 
 fn main() {
