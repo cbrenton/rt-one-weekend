@@ -7,13 +7,17 @@ const ASPECT_RATIO: f32 = 16.0 / 9.0;
 mod geom;
 mod util;
 
-use geom::Hittable;
+use geom::{Hittable, HittableList};
 use std::default::Default;
 
 fn ray_color(ray: util::Ray) -> util::Color {
-    let s = geom::Sphere::new(0.5, Vec3::new(0.0, 0.0, -1.0));
     let mut rec = geom::HitRecord::default();
-    if s.hit(ray, 0.0, 1000.0, &mut rec) {
+    let mut objects = HittableList::default();
+
+    let s = geom::Sphere::new(0.5, Vec3::new(0.0, 0.0, -1.0));
+    objects.add(Box::new(s));
+
+    if objects.hit(&ray, 0.0, 1000.0, &mut rec) {
         return util::Color::new(1.0, 0.0, 1.0);
     }
 
