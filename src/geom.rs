@@ -1,7 +1,7 @@
+mod sphere;
+
 use crate::util::{Interval, Ray};
 use glam::Vec3;
-
-mod sphere;
 
 pub use sphere::Sphere;
 
