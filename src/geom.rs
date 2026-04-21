@@ -53,8 +53,8 @@ impl HittableList {
         self.objects.clear();
     }
 
-    pub fn add(&mut self, other: Box<dyn Hittable>) {
-        self.objects.push(other);
+    pub fn add(&mut self, other: impl Hittable + 'static) {
+        self.objects.push(Box::new(other));
     }
 }
 
