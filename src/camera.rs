@@ -102,7 +102,8 @@ impl Camera {
             // the normal. if that hits something, contribute an additional 50% to the value. this
             // 50% will multiply with each consecutive bounce (i.e. contribute less and less each
             // time the ray bounces)
-            0.5 * self.ray_color(&Ray::new(rec.point, direction), world, depth + 1)
+            let ray_contrib = 0.5;
+            ray_contrib * self.ray_color(&Ray::new(rec.point, direction), world, depth + 1)
         } else {
             let unit_direction = ray.direction().normalize();
 

@@ -4,7 +4,7 @@ mod interval;
 mod ray;
 
 pub use canvas::Canvas;
-pub use color::Color;
+pub use color::{Color, linear_to_gamma};
 pub use interval::{DInterval, IInterval, Interval};
 pub use ray::Ray;
 

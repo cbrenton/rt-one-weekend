@@ -1,4 +1,4 @@
-use crate::util::{Color, Interval};
+use crate::util::{Color, Interval, linear_to_gamma};
 use image::{Rgb, RgbImage};
 use kdam::tqdm;
 use std::fs;
@@ -37,9 +37,9 @@ impl Canvas {
 
                 // translate the [0.0, 1.0] component values to the byte range [0.0, 255.0]
                 let intensity = Interval::new(0, 255);
-                let r = intensity.scale(color.x) as u8;
-                let g = intensity.scale(color.y) as u8;
-                let b = intensity.scale(color.z) as u8;
+                let r = intensity.scale(linear_to_gamma(color.x)) as u8;
+                let g = intensity.scale(linear_to_gamma(color.y)) as u8;
+                let b = intensity.scale(linear_to_gamma(color.z)) as u8;
 
                 let pixel = buf.get_pixel_mut(x as u32, y as u32);
                 *pixel = Rgb([r, g, b]);
