@@ -1,5 +1,5 @@
 use crate::geom::{HitRecord, Hittable, HittableList};
-use crate::util::{Canvas, Color, Interval, Ray, random_double};
+use crate::util::{Canvas, Color, Interval, Ray, random_double, random_on_hemisphere};
 use glam::DVec3;
 use kdam::BarExt;
 
@@ -50,7 +50,7 @@ impl Camera {
     }
 
     pub fn render(&mut self, world: &HittableList) {
-        let mut bar = self.img.progress_bar(Self::SAMPLES_PER_PIXEL);
+        let mut bar = self.img.progress_bar();
         for x in 0..self.img.width {
             for y in 0..self.img.height {
                 let mut pixel_color = Color::ZERO;
@@ -61,10 +61,9 @@ impl Camera {
                     let ray = self.get_ray(x, y);
 
                     pixel_color += self.ray_color(&ray, world);
-
-                    self.img[(x, y)] = pixel_color / Self::SAMPLES_PER_PIXEL as f64;
-                    bar.update(1).unwrap();
                 }
+                bar.update(1).unwrap();
+                self.img[(x, y)] = pixel_color / Self::SAMPLES_PER_PIXEL as f64;
             }
         }
 
@@ -89,8 +88,16 @@ impl Camera {
     fn ray_color(&self, ray: &Ray, world: &HittableList) -> Color {
         let mut rec = HitRecord::default();
 
+        // TODO: this causes a stack overflow if I bump min to 0.001, I'm sure from recursion from
+        // the bounces - it seems that it never stops bouncing. I need to think hard about the cause
+        // I think it's happening when it hits a sphere reallllllly close to another sphere
         if world.hit(ray, Interval::new(0.0, f64::INFINITY), &mut rec) {
-            0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0))
+            let direction = random_on_hemisphere(rec.normal);
+            // if we hit something, fire out a ray in a random direction on the hemisphere about
+            // the normal. if that hits something, contribute an additional 50% to the value. this
+            // 50% will multiply with each consecutive bounce (i.e. contribute less and less each
+            // time the ray bounces)
+            0.5 * self.ray_color(&Ray::new(rec.point, direction), world)
         } else {
             let unit_direction = ray.direction().normalize();
             let a = 0.5 * (unit_direction.y + 1.0);
