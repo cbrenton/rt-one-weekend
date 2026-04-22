@@ -89,6 +89,7 @@ impl Hittable for HittableList {
             if object.hit(ray, DInterval::new(ray_t.min, closest_so_far), &mut tmp_rec) {
                 hit_anything = true;
                 closest_so_far = tmp_rec.t;
+                // need to clone this since it can't be copied (because of the shared pointer)
                 *rec = tmp_rec.clone();
             }
         }

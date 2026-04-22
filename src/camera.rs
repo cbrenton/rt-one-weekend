@@ -95,15 +95,15 @@ impl Camera {
         }
 
         if world.hit(ray, Interval::new(0.001, f64::INFINITY), &mut rec) {
-            // let direction = random_on_hemisphere(rec.normal);
-            let direction = rec.normal + random_unit_vector();
+            let mut scattered = Ray::default();
+            let mut attenuation = Color::ZERO;
 
-            // if we hit something, fire out a ray in a random direction on the hemisphere about
-            // the normal. if that hits something, contribute an additional 50% to the value. this
-            // 50% will multiply with each consecutive bounce (i.e. contribute less and less each
-            // time the ray bounces)
-            let ray_contrib = 0.5;
-            ray_contrib * self.ray_color(&Ray::new(rec.point, direction), world, depth + 1)
+            let mat = rec.mat.clone();
+            if mat.scatter(ray, &mut rec, &mut attenuation, &mut scattered) {
+                attenuation * self.ray_color(&scattered, world, depth + 1)
+            } else {
+                Color::ZERO
+            }
         } else {
             let unit_direction = ray.direction().normalize();
 
