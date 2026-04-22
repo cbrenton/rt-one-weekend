@@ -1,5 +1,7 @@
 use crate::geom::{HitRecord, Hittable, HittableList};
-use crate::util::{Canvas, Color, Interval, Ray, random_double, random_on_hemisphere};
+use crate::util::{
+    Canvas, Color, Interval, Ray, random_double, random_on_hemisphere, random_unit_vector,
+};
 use glam::DVec3;
 use kdam::BarExt;
 
@@ -92,11 +94,10 @@ impl Camera {
             return DVec3::ZERO;
         }
 
-        // TODO: this causes a stack overflow if I bump min to 0.001, I'm sure from recursion from
-        // the bounces - it seems that it never stops bouncing. I need to think hard about the cause
-        // I think it's happening when it hits a sphere reallllllly close to another sphere
         if world.hit(ray, Interval::new(0.001, f64::INFINITY), &mut rec) {
-            let direction = random_on_hemisphere(rec.normal);
+            // let direction = random_on_hemisphere(rec.normal);
+            let direction = rec.normal + random_unit_vector();
+
             // if we hit something, fire out a ray in a random direction on the hemisphere about
             // the normal. if that hits something, contribute an additional 50% to the value. this
             // 50% will multiply with each consecutive bounce (i.e. contribute less and less each
@@ -104,8 +105,18 @@ impl Camera {
             0.5 * self.ray_color(&Ray::new(rec.point, direction), world, depth + 1)
         } else {
             let unit_direction = ray.direction().normalize();
-            let a = 0.5 * (unit_direction.y + 1.0);
-            (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
+
+            // calculate how "up" y is, on a scale of 0 to 1 (add 1 to convert -1..1 -> 0..2, then
+            // multiply by 0.5 to get 0..1)
+            let upness = 0.5 * (unit_direction.y + 1.0);
+
+            let white = Color::new(1.0, 1.0, 1.0);
+            let sky_blue = Color::new(0.5, 0.7, 1.0);
+
+            // lerp between white and a light blue, based on how "up" the ray is pointing, to get a
+            // white sky when the ray is completely downward-facing or a blue sky when it's
+            // completely upward facing (or in between for most sky-intersecting rays from camera)
+            (1.0 - upness) * white + upness * sky_blue
         }
     }
 
