@@ -1,26 +1,59 @@
-#[derive(Copy,Clone,Default)]
-pub struct Interval {
-    pub min: f64,
-    pub max: f64
+use std::ops::{Add, Sub};
+
+#[derive(Copy, Clone, Default)]
+pub struct Interval<T> {
+    pub min: T,
+    pub max: T,
 }
 
-impl Interval {
-    pub fn new(min: f64, max: f64) -> Self {
+impl<T: Add<Output = T> + Sub<Output = T> + PartialOrd + Copy> Interval<T> {
+    pub fn new(min: T, max: T) -> Self {
         Self { min, max }
     }
 
-    pub fn size(&self) -> f64 {
+    pub fn size(&self) -> T {
         self.max - self.min
     }
 
-    pub fn contains(&self, x: f64) -> bool {
+    pub fn contains(&self, x: T) -> bool {
         self.min <= x && x <= self.max
     }
 
-    pub fn surrounds(&self, x: f64) -> bool {
+    pub fn surrounds(&self, x: T) -> bool {
         self.min < x && x < self.max
     }
 
-    pub const EMPTY: Interval = Interval { min: f64::INFINITY, max: f64::NEG_INFINITY };
-    pub const UNIVERSE: Interval = Interval { min: f64::NEG_INFINITY, max: f64::INFINITY };
+    pub fn clamp(&self, x: T) -> T {
+        if x < self.min {
+            self.min
+        } else if x > self.max {
+            self.max
+        } else {
+            x
+        }
+    }
+}
+
+impl Interval<f64> {
+    pub const EMPTY: Self = Interval {
+        min: f64::INFINITY,
+        max: f64::NEG_INFINITY,
+    };
+
+    pub const UNIVERSE: Self = Interval {
+        min: f64::NEG_INFINITY,
+        max: f64::INFINITY,
+    };
+}
+
+impl Interval<i32> {
+    pub const EMPTY: Self = Interval {
+        min: i32::MAX,
+        max: i32::MIN,
+    };
+
+    pub const UNIVERSE: Self = Interval {
+        min: i32::MIN,
+        max: i32::MAX,
+    };
 }
