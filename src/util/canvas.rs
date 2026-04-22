@@ -8,12 +8,12 @@ use std::ops::{Index, IndexMut};
 pub struct Canvas {
     pub width: usize,
     pub height: usize,
-    pixels: Vec<Vec<Color>>,
+    pixels: Vec<Color>,
 }
 
 impl Canvas {
     pub fn new(width: usize, height: usize) -> Self {
-        let pixels = vec![vec![Color::ZERO; width]; height];
+        let pixels = vec![Color::ZERO; width * height];
         Canvas {
             width,
             height,
@@ -26,14 +26,15 @@ impl Canvas {
     }
 
     pub fn write(&self) {
-        let filename = "output/test.png";
+        let dirname = "./output";
+        let filename = "test.png";
 
         // create image buffer
         let mut buf = RgbImage::new(self.width as u32, self.height as u32);
         let intensity = Interval::new(0, 255);
-        for x in 0..self.width {
-            for y in 0..self.height {
-                let color = self.pixels[y][x];
+        for y in 0..self.height {
+            for x in 0..self.width {
+                let color = self.pixels[y * self.width + x];
 
                 // translate the [0.0, 1.0] component values to the byte range [0.0, 255.0]
                 let r = intensity.scale(linear_to_gamma(color.x)) as u8;
@@ -46,10 +47,10 @@ impl Canvas {
         }
 
         // create output dir
-        let _ = fs::create_dir("./output");
+        let _ = fs::create_dir(dirname);
 
         // write image
-        buf.save("output/test.png").unwrap();
+        buf.save(format!("{dirname}/{filename}")).unwrap();
         println!("Wrote file to {filename}");
     }
 }
@@ -59,13 +60,13 @@ impl Index<(usize, usize)> for Canvas {
     type Output = Color;
 
     fn index(&self, (x, y): (usize, usize)) -> &Color {
-        &self.pixels[y][x]
+        &self.pixels[y * self.width + x]
     }
 }
 
 // same for mut
 impl IndexMut<(usize, usize)> for Canvas {
     fn index_mut(&mut self, (x, y): (usize, usize)) -> &mut Color {
-        &mut self.pixels[y][x]
+        &mut self.pixels[y * self.width + x]
     }
 }

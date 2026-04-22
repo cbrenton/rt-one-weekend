@@ -78,8 +78,8 @@ impl Camera {
 
     pub fn render(&mut self, world: &HittableList) {
         let mut bar = self.img.progress_bar();
-        for x in 0..self.img.width {
-            for y in 0..self.img.height {
+        for y in 0..self.img.height {
+            for x in 0..self.img.width {
                 let mut pixel_color = Color::ZERO;
 
                 // cast SAMPLES_PER_PIXEL random-ish rays and then divide total color by
