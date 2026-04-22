@@ -113,20 +113,15 @@ impl Camera {
     }
 
     fn ray_color(&self, ray: &Ray, world: &HittableList, depth: i32) -> Color {
-        // TODO: this is getting constructed for every ray creation, which is a LOT of times. maybe
-        // change this to an Option<Arc> instead of a bare Arc, and set a value when a hit actually
-        // occurs
-        let mut rec = HitRecord::default();
-
         if depth >= self.config.max_depth {
             return DVec3::ZERO;
         }
 
-        if world.hit(ray, Interval::new(0.001, f64::INFINITY), &mut rec) {
+        if let Some(rec) = world.hit(ray, Interval::new(0.001, f64::INFINITY)) {
             let mut scattered = Ray::default();
             let mut attenuation = Color::ZERO;
 
-            if let Some(mat) = rec.mat.as_ref() {
+            if let Some(mat) = rec.mat.clone() {
                 if mat.scatter(ray, &rec, &mut attenuation, &mut scattered) {
                     attenuation * self.ray_color(&scattered, world, depth + 1)
                 } else {

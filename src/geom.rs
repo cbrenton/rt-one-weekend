@@ -8,7 +8,7 @@ pub use sphere::Sphere;
 
 // TODO: move this elsewhere?
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, ray_t: DInterval, rec: &mut HitRecord) -> bool;
+    fn hit(&self, ray: &Ray, ray_t: DInterval) -> Option<HitRecord>;
 }
 
 // TODO: move this elsewhere?
@@ -60,21 +60,16 @@ impl HittableList {
 }
 
 impl Hittable for HittableList {
-    fn hit(&self, ray: &Ray, ray_t: DInterval, rec: &mut HitRecord) -> bool {
-        let mut tmp_rec = HitRecord::default();
-        let mut hit_anything = false;
+    fn hit(&self, ray: &Ray, ray_t: DInterval) -> Option<HitRecord> {
         let mut closest_so_far = ray_t.max;
+        let mut result: Option<HitRecord> = None;
 
         for object in &self.objects {
-            if object.hit(ray, DInterval::new(ray_t.min, closest_so_far), &mut tmp_rec) {
-                hit_anything = true;
-                closest_so_far = tmp_rec.t;
-                // need to clone this since it can't be copied (because of the shared pointer)
-                // actually, we can swap it! which is free (instead of "very cheap" to clone the
-                // shared ptr)
-                swap(rec, &mut tmp_rec);
+            if let Some(rec) = object.hit(ray, DInterval::new(ray_t.min, closest_so_far)) {
+                closest_so_far = rec.t;
+                result = Some(rec);
             }
         }
-        hit_anything
+        result
     }
 }
