@@ -1,15 +1,15 @@
 use crate::util::{Interval, Ray};
-use glam::Vec3;
+use glam::DVec3;
 
 use super::{HitRecord, Hittable};
 
 pub struct Sphere {
-    pub center: Vec3,
-    pub radius: f32,
+    pub center: DVec3,
+    pub radius: f64,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f32) -> Self {
+    pub fn new(center: DVec3, radius: f64) -> Self {
         Self { center, radius }
     }
 }

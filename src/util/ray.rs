@@ -1,26 +1,26 @@
-use glam::Vec3;
+use glam::DVec3;
 
 pub struct Ray {
-    origin: Vec3,
-    direction: Vec3,
+    origin: DVec3,
+    direction: DVec3,
 }
 
 impl Ray {
-    pub fn new(origin: Vec3, direction: Vec3) -> Self {
+    pub fn new(origin: DVec3, direction: DVec3) -> Self {
         Ray { origin, direction }
     }
 
-    pub fn at(&self, t: f32) -> Vec3 {
+    pub fn at(&self, t: f64) -> DVec3 {
         self.origin + self.direction * t
     }
 
     // only allow getting origin, don't let it be updated after creation
-    pub fn origin(&self) -> Vec3 {
+    pub fn origin(&self) -> DVec3 {
         self.origin
     }
 
     // samesies
-    pub fn direction(&self) -> Vec3 {
+    pub fn direction(&self) -> DVec3 {
         self.direction
     }
 }

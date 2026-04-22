@@ -1,7 +1,7 @@
 mod sphere;
 
 use crate::util::{Interval, Ray};
-use glam::Vec3;
+use glam::DVec3;
 
 pub use sphere::Sphere;
 
@@ -13,14 +13,14 @@ pub trait Hittable {
 // TODO: move this elsewhere?
 #[derive(Default, Copy, Clone)]
 pub struct HitRecord {
-    pub point: Vec3,
-    pub normal: Vec3,
-    pub t: f32,
+    pub point: DVec3,
+    pub normal: DVec3,
+    pub t: f64,
     pub front_face: bool,
 }
 
 impl HitRecord {
-    pub fn new(point: Vec3, normal: Vec3, t: f32, front_face: bool) -> Self {
+    pub fn new(point: DVec3, normal: DVec3, t: f64, front_face: bool) -> Self {
         Self {
             point,
             normal,
@@ -29,7 +29,7 @@ impl HitRecord {
         }
     }
 
-    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: Vec3) {
+    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: DVec3) {
         self.front_face = ray.direction().dot(outward_normal) < 0.0;
         self.normal = if self.front_face {
             outward_normal

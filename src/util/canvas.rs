@@ -4,7 +4,7 @@ use kdam::tqdm;
 use std::fs;
 use std::ops::{Index, IndexMut};
 
-const SCALING_FACTOR: f32 = 255.999;
+const SCALING_FACTOR: f64 = 255.999;
 
 pub struct Canvas {
     pub width: usize,
