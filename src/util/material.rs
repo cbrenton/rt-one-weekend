@@ -7,7 +7,7 @@ pub trait Material {
     fn scatter(
         &self,
         ray_in: &Ray,
-        rec: &mut HitRecord,
+        rec: &HitRecord,
         attenuation: &mut Color,
         scattered: &mut Ray,
     ) -> bool;
@@ -17,7 +17,13 @@ pub trait Material {
 pub struct NoMaterial {}
 
 impl Material for NoMaterial {
-    fn scatter(&self, _: &Ray, _: &mut HitRecord, _: &mut Color, _: &mut Ray) -> bool {
+    fn scatter(
+        &self,
+        _ray_in: &Ray,
+        _rec: &HitRecord,
+        _attenuation: &mut Color,
+        _scattered: &mut Ray,
+    ) -> bool {
         false
     }
 }
@@ -36,8 +42,8 @@ impl Lambertian {
 impl Material for Lambertian {
     fn scatter(
         &self,
-        ray_in: &Ray,
-        rec: &mut HitRecord,
+        _ray_in: &Ray,
+        rec: &HitRecord,
         attenuation: &mut Color,
         scattered: &mut Ray,
     ) -> bool {
@@ -61,7 +67,10 @@ pub struct Metal {
 
 impl Metal {
     pub fn new(albedo: Color, fuzziness: f64) -> Self {
-        Self { albedo, fuzziness }
+        Self {
+            albedo,
+            fuzziness: fuzziness.clamp(0.0, 1.0),
+        }
     }
 }
 
@@ -69,7 +78,7 @@ impl Material for Metal {
     fn scatter(
         &self,
         ray_in: &Ray,
-        rec: &mut HitRecord,
+        rec: &HitRecord,
         attenuation: &mut Color,
         scattered: &mut Ray,
     ) -> bool {
@@ -79,6 +88,6 @@ impl Material for Metal {
 
         *scattered = Ray::new(rec.point, reflected);
         *attenuation = self.albedo;
-        true
+        scattered.direction().dot(rec.normal) > 0.0
     }
 }

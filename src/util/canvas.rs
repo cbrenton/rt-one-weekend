@@ -1,15 +1,14 @@
-use crate::util::{Color, Interval, linear_to_gamma};
+use crate::util::color::linear_to_gamma;
+use crate::util::{Color, Interval};
 use image::{Rgb, RgbImage};
 use kdam::tqdm;
 use std::fs;
 use std::ops::{Index, IndexMut};
 
-const SCALING_FACTOR: f64 = 255.999;
-
 pub struct Canvas {
     pub width: usize,
     pub height: usize,
-    pub pixels: Vec<Vec<Color>>,
+    pixels: Vec<Vec<Color>>,
 }
 
 impl Canvas {
@@ -31,12 +30,12 @@ impl Canvas {
 
         // create image buffer
         let mut buf = RgbImage::new(self.width as u32, self.height as u32);
+        let intensity = Interval::new(0, 255);
         for x in 0..self.width {
             for y in 0..self.height {
                 let color = self.pixels[y][x];
 
                 // translate the [0.0, 1.0] component values to the byte range [0.0, 255.0]
-                let intensity = Interval::new(0, 255);
                 let r = intensity.scale(linear_to_gamma(color.x)) as u8;
                 let g = intensity.scale(linear_to_gamma(color.y)) as u8;
                 let b = intensity.scale(linear_to_gamma(color.z)) as u8;

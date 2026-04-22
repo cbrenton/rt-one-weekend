@@ -13,7 +13,7 @@ use crate::util::{Color, Lambertian, Metal};
 fn main() {
     let mut world = HittableList::default();
 
-    let mut camera = Camera::new();
+    let mut camera = Camera::default();
 
     let material_ground = Arc::new(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let material_center = Arc::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));

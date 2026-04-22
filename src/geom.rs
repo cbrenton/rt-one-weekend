@@ -2,7 +2,7 @@ mod sphere;
 
 use crate::util::{DInterval, Material, NoMaterial, Ray};
 use glam::DVec3;
-use std::sync::Arc;
+use std::{mem::swap, sync::Arc};
 
 pub use sphere::Sphere;
 
@@ -34,22 +34,6 @@ impl Default for HitRecord {
 }
 
 impl HitRecord {
-    pub fn new(
-        point: DVec3,
-        normal: DVec3,
-        t: f64,
-        front_face: bool,
-        mat: Arc<dyn Material>,
-    ) -> Self {
-        Self {
-            point,
-            normal,
-            t,
-            front_face,
-            mat,
-        }
-    }
-
     pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: DVec3) {
         self.front_face = ray.direction().dot(outward_normal) < 0.0;
         self.normal = if self.front_face {
@@ -62,14 +46,10 @@ impl HitRecord {
 
 #[derive(Default)]
 pub struct HittableList {
-    pub objects: Vec<Box<dyn Hittable>>,
+    objects: Vec<Box<dyn Hittable>>,
 }
 
 impl HittableList {
-    pub fn new() -> Self {
-        Self { objects: vec![] }
-    }
-
     pub fn clear(&mut self) {
         self.objects.clear();
     }
@@ -90,7 +70,9 @@ impl Hittable for HittableList {
                 hit_anything = true;
                 closest_so_far = tmp_rec.t;
                 // need to clone this since it can't be copied (because of the shared pointer)
-                *rec = tmp_rec.clone();
+                // actually, we can swap it! which is free (instead of "very cheap" to clone the
+                // shared ptr)
+                swap(rec, &mut tmp_rec);
             }
         }
         hit_anything

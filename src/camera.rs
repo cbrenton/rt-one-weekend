@@ -1,27 +1,51 @@
 use crate::geom::{HitRecord, Hittable, HittableList};
-use crate::util::{
-    Canvas, Color, Interval, Ray, random_double, random_on_hemisphere, random_unit_vector,
-};
+use crate::util::{Canvas, Color, Interval, Ray, random_double};
 use glam::DVec3;
 use kdam::BarExt;
 
+pub struct CameraConfig {
+    pub image_width: f64,
+    pub aspect_ratio: f64,
+    pub samples_per_pixel: i32,
+    pub max_depth: i32,
+}
+
+impl Default for CameraConfig {
+    fn default() -> Self {
+        Self {
+            image_width: 800.0,
+            aspect_ratio: 16.0 / 9.0,
+            samples_per_pixel: 10,
+            max_depth: 10,
+        }
+    }
+}
+
 pub struct Camera {
-    pub img: Canvas,
+    config: CameraConfig,
+    img: Canvas,
     camera_center: DVec3,
     pixel00_loc: DVec3,
     pixel_delta_u: DVec3,
     pixel_delta_v: DVec3,
 }
 
+impl Default for Camera {
+    fn default() -> Self {
+        let config = CameraConfig::default();
+        Self::new(config)
+    }
+}
+
 impl Camera {
-    pub fn new() -> Self {
+    pub fn new(config: CameraConfig) -> Self {
         // make sure height is at least 1
-        let image_h = (Self::IMAGE_W / Self::ASPECT_RATIO).max(1.0);
+        let image_h = (config.image_width / config.aspect_ratio).max(1.0);
 
         let focal_length = 1.0;
         let viewport_height = 2.0;
         // recalculate aspect ratio because image_h might not be what we intended
-        let viewport_width = viewport_height * (Self::IMAGE_W / image_h);
+        let viewport_width = viewport_height * (config.image_width / image_h);
         let camera_center = DVec3::ZERO;
 
         // calculate the vectors along the horizontal and vertical edges of the viewport
@@ -29,7 +53,7 @@ impl Camera {
         let viewport_v = DVec3::new(0.0, -viewport_height, 0.0);
 
         // calculate the horizontal and vertical delta vectors from pixel to pixel
-        let pixel_delta_u = viewport_u / Self::IMAGE_W;
+        let pixel_delta_u = viewport_u / config.image_width;
         let pixel_delta_v = viewport_v / image_h;
 
         // calculate the location of the upper left pixel
@@ -40,9 +64,10 @@ impl Camera {
 
         let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
-        let img = Canvas::new(Self::IMAGE_W as usize, image_h as usize);
+        let img = Canvas::new(config.image_width as usize, image_h as usize);
 
         Self {
+            config,
             img,
             camera_center,
             pixel00_loc,
@@ -59,13 +84,13 @@ impl Camera {
 
                 // cast SAMPLES_PER_PIXEL random-ish rays and then divide total color by
                 // SAMPLES_PER_PIXEL for simple antialiasing
-                for _ in 0..Self::SAMPLES_PER_PIXEL {
+                for _ in 0..self.config.samples_per_pixel {
                     let ray = self.get_ray(x, y);
 
                     pixel_color += self.ray_color(&ray, world, 0);
                 }
                 bar.update(1).unwrap();
-                self.img[(x, y)] = pixel_color / Self::SAMPLES_PER_PIXEL as f64;
+                self.img[(x, y)] = pixel_color / self.config.samples_per_pixel as f64;
             }
         }
 
@@ -88,9 +113,12 @@ impl Camera {
     }
 
     fn ray_color(&self, ray: &Ray, world: &HittableList, depth: i32) -> Color {
+        // TODO: this is getting constructed for every ray creation, which is a LOT of times. maybe
+        // change this to an Option<Arc> instead of a bare Arc, and set a value when a hit actually
+        // occurs
         let mut rec = HitRecord::default();
 
-        if depth > Self::MAX_DEPTH {
+        if depth >= self.config.max_depth {
             return DVec3::ZERO;
         }
 
@@ -120,9 +148,4 @@ impl Camera {
             (1.0 - upness) * white + upness * sky_blue
         }
     }
-
-    const IMAGE_W: f64 = 800.0;
-    const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const SAMPLES_PER_PIXEL: i32 = 10;
-    const MAX_DEPTH: i32 = 10;
 }

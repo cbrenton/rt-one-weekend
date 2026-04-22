@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
-use crate::util::{DInterval, Material, NoMaterial, Ray};
+use crate::util::{DInterval, Material, Ray};
 use glam::DVec3;
 
 use super::{HitRecord, Hittable};
 
 pub struct Sphere {
-    pub center: DVec3,
-    pub radius: f64,
-    pub mat: Arc<dyn Material>,
+    center: DVec3,
+    radius: f64,
+    mat: Arc<dyn Material>,
 }
 
 impl Sphere {

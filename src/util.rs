@@ -5,7 +5,7 @@ mod material;
 mod ray;
 
 pub use canvas::Canvas;
-pub use color::{Color, linear_to_gamma};
+pub use color::Color;
 pub use interval::{DInterval, IInterval, Interval};
 pub use material::{Lambertian, Material, Metal, NoMaterial};
 pub use ray::Ray;
@@ -66,5 +66,5 @@ pub fn random_on_hemisphere(normal: DVec3) -> DVec3 {
 
 pub fn near_zero(v: DVec3) -> bool {
     let s = 1e-8;
-    (v[0].abs() < s) && (v[1].abs() < s) && (v[2].abs() < s)
+    (v.x.abs() < s) && (v.y.abs() < s) && (v.z.abs() < s)
 }
