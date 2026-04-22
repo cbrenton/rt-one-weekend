@@ -7,7 +7,7 @@ mod ray;
 pub use canvas::Canvas;
 pub use color::Color;
 pub use interval::{DInterval, IInterval, Interval};
-pub use material::{Lambertian, Material, Metal, NoMaterial};
+pub use material::{Lambertian, Material, Metal};
 pub use ray::Ray;
 
 use glam::DVec3;

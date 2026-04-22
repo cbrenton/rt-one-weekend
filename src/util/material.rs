@@ -14,21 +14,6 @@ pub trait Material {
 }
 
 #[derive(Default, Copy, Clone)]
-pub struct NoMaterial {}
-
-impl Material for NoMaterial {
-    fn scatter(
-        &self,
-        _ray_in: &Ray,
-        _rec: &HitRecord,
-        _attenuation: &mut Color,
-        _scattered: &mut Ray,
-    ) -> bool {
-        false
-    }
-}
-
-#[derive(Default, Copy, Clone)]
 pub struct Lambertian {
     pub albedo: Color,
 }

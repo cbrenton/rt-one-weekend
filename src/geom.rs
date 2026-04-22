@@ -1,6 +1,6 @@
 mod sphere;
 
-use crate::util::{DInterval, Material, NoMaterial, Ray};
+use crate::util::{DInterval, Material, Ray};
 use glam::DVec3;
 use std::{mem::swap, sync::Arc};
 
@@ -18,7 +18,7 @@ pub struct HitRecord {
     pub normal: DVec3,
     pub t: f64,
     pub front_face: bool,
-    pub mat: Arc<dyn Material>,
+    pub mat: Option<Arc<dyn Material>>,
 }
 
 impl Default for HitRecord {
@@ -28,7 +28,7 @@ impl Default for HitRecord {
             normal: DVec3::ZERO,
             t: 0.0,
             front_face: false,
-            mat: Arc::new(NoMaterial {}),
+            mat: None,
         }
     }
 }

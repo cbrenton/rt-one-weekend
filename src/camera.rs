@@ -126,9 +126,12 @@ impl Camera {
             let mut scattered = Ray::default();
             let mut attenuation = Color::ZERO;
 
-            let mat = rec.mat.clone();
-            if mat.scatter(ray, &mut rec, &mut attenuation, &mut scattered) {
-                attenuation * self.ray_color(&scattered, world, depth + 1)
+            if let Some(mat) = rec.mat.as_ref() {
+                if mat.scatter(ray, &rec, &mut attenuation, &mut scattered) {
+                    attenuation * self.ray_color(&scattered, world, depth + 1)
+                } else {
+                    Color::ZERO
+                }
             } else {
                 Color::ZERO
             }

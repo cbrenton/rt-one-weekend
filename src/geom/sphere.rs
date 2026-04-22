@@ -49,7 +49,7 @@ impl Hittable for Sphere {
         rec.point = ray.at(rec.t);
         let outward_normal = (rec.point - self.center) / self.radius;
         rec.set_face_normal(ray, outward_normal);
-        rec.mat = self.mat.clone();
+        rec.mat = Some(self.mat.clone());
 
         true
     }
