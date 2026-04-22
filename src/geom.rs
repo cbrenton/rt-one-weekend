@@ -1,7 +1,8 @@
 mod sphere;
 
-use crate::util::{DInterval, Ray};
+use crate::util::{DInterval, Material, NoMaterial, Ray};
 use glam::DVec3;
+use std::sync::Arc;
 
 pub use sphere::Sphere;
 
@@ -11,21 +12,41 @@ pub trait Hittable {
 }
 
 // TODO: move this elsewhere?
-#[derive(Default, Copy, Clone)]
+#[derive(Clone)]
 pub struct HitRecord {
     pub point: DVec3,
     pub normal: DVec3,
     pub t: f64,
     pub front_face: bool,
+    pub mat: Arc<dyn Material>,
+}
+
+impl Default for HitRecord {
+    fn default() -> Self {
+        Self {
+            point: DVec3::ZERO,
+            normal: DVec3::ZERO,
+            t: 0.0,
+            front_face: false,
+            mat: Arc::new(NoMaterial {}),
+        }
+    }
 }
 
 impl HitRecord {
-    pub fn new(point: DVec3, normal: DVec3, t: f64, front_face: bool) -> Self {
+    pub fn new(
+        point: DVec3,
+        normal: DVec3,
+        t: f64,
+        front_face: bool,
+        mat: Arc<dyn Material>,
+    ) -> Self {
         Self {
             point,
             normal,
             t,
             front_face,
+            mat,
         }
     }
 
@@ -68,7 +89,7 @@ impl Hittable for HittableList {
             if object.hit(ray, DInterval::new(ray_t.min, closest_so_far), &mut tmp_rec) {
                 hit_anything = true;
                 closest_so_far = tmp_rec.t;
-                *rec = tmp_rec;
+                *rec = tmp_rec.clone();
             }
         }
         hit_anything

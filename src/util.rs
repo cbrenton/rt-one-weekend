@@ -1,11 +1,13 @@
 mod canvas;
 mod color;
 mod interval;
+mod material;
 mod ray;
 
 pub use canvas::Canvas;
 pub use color::{Color, linear_to_gamma};
 pub use interval::{DInterval, IInterval, Interval};
+pub use material::{Material, NoMaterial};
 pub use ray::Ray;
 
 use glam::DVec3;
