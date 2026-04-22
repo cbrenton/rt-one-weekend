@@ -44,10 +44,10 @@ pub fn random_vec3_range(range: Range<f64>) -> DVec3 {
 
 pub fn random_unit_vector() -> DVec3 {
     loop {
-        let p = random_vec3();
+        let p = random_vec3_range(-1.0..1.0);
         let lensq = p.length_squared();
         if 1e-160 < lensq && lensq <= 1.0 {
-            return p / lensq;
+            return p / lensq.sqrt();
         }
     }
 }

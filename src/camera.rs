@@ -60,7 +60,7 @@ impl Camera {
                 for _ in 0..Self::SAMPLES_PER_PIXEL {
                     let ray = self.get_ray(x, y);
 
-                    pixel_color += self.ray_color(&ray, world);
+                    pixel_color += self.ray_color(&ray, world, 0);
                 }
                 bar.update(1).unwrap();
                 self.img[(x, y)] = pixel_color / Self::SAMPLES_PER_PIXEL as f64;
@@ -85,19 +85,23 @@ impl Camera {
         DVec3::new(random_double() - 0.5, random_double() - 0.5, 0.0)
     }
 
-    fn ray_color(&self, ray: &Ray, world: &HittableList) -> Color {
+    fn ray_color(&self, ray: &Ray, world: &HittableList, depth: i32) -> Color {
         let mut rec = HitRecord::default();
+
+        if depth > Self::MAX_DEPTH {
+            return DVec3::ZERO;
+        }
 
         // TODO: this causes a stack overflow if I bump min to 0.001, I'm sure from recursion from
         // the bounces - it seems that it never stops bouncing. I need to think hard about the cause
         // I think it's happening when it hits a sphere reallllllly close to another sphere
-        if world.hit(ray, Interval::new(0.0, f64::INFINITY), &mut rec) {
+        if world.hit(ray, Interval::new(0.001, f64::INFINITY), &mut rec) {
             let direction = random_on_hemisphere(rec.normal);
             // if we hit something, fire out a ray in a random direction on the hemisphere about
             // the normal. if that hits something, contribute an additional 50% to the value. this
             // 50% will multiply with each consecutive bounce (i.e. contribute less and less each
             // time the ray bounces)
-            0.5 * self.ray_color(&Ray::new(rec.point, direction), world)
+            0.5 * self.ray_color(&Ray::new(rec.point, direction), world, depth + 1)
         } else {
             let unit_direction = ray.direction().normalize();
             let a = 0.5 * (unit_direction.y + 1.0);
@@ -108,4 +112,5 @@ impl Camera {
     const IMAGE_W: f64 = 800.0;
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const SAMPLES_PER_PIXEL: i32 = 10;
+    const MAX_DEPTH: i32 = 10;
 }
