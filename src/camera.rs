@@ -1,5 +1,5 @@
-use crate::util::{Canvas, Color, Interval, Ray};
-use crate::geom::{Hittable, HittableList, HitRecord};
+use crate::geom::{HitRecord, Hittable, HittableList};
+use crate::util::{Canvas, Color, Interval, Ray, random_double};
 use glam::DVec3;
 use kdam::BarExt;
 
@@ -31,34 +31,59 @@ impl Camera {
         let pixel_delta_v = viewport_v / image_h;
 
         // calculate the location of the upper left pixel
-        let viewport_upper_left =
-            camera_center - DVec3::new(0.0, 0.0, focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
+        let viewport_upper_left = camera_center
+            - DVec3::new(0.0, 0.0, focal_length)
+            - viewport_u / 2.0
+            - viewport_v / 2.0;
 
         let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
         let img = Canvas::new(Self::IMAGE_W as usize, image_h as usize);
 
-        Self { img, camera_center, pixel00_loc, pixel_delta_u, pixel_delta_v }
+        Self {
+            img,
+            camera_center,
+            pixel00_loc,
+            pixel_delta_u,
+            pixel_delta_v,
+        }
     }
 
     pub fn render(&mut self, world: &HittableList) {
-        let mut bar = self.img.progress_bar();
+        let mut bar = self.img.progress_bar(Self::SAMPLES_PER_PIXEL);
         for x in 0..self.img.width {
             for y in 0..self.img.height {
-                let pixel_center =
-                    self.pixel00_loc + (x as f64 * self.pixel_delta_u) + (y as f64 * self.pixel_delta_v);
-                let ray_direction = pixel_center - self.camera_center;
+                let mut pixel_color = Color::ZERO;
 
-                let ray = Ray::new(self.camera_center, ray_direction);
+                // cast SAMPLES_PER_PIXEL random-ish rays and then divide total color by
+                // SAMPLES_PER_PIXEL for simple antialiasing
+                for _ in 0..Self::SAMPLES_PER_PIXEL {
+                    let ray = self.get_ray(x, y);
 
-                let pixel_color = self.ray_color(&ray, &world);
+                    pixel_color += self.ray_color(&ray, world);
 
-                self.img[(x, y)] = pixel_color;
-                bar.update(1).unwrap();
+                    self.img[(x, y)] = pixel_color / Self::SAMPLES_PER_PIXEL as f64;
+                    bar.update(1).unwrap();
+                }
             }
         }
 
         self.img.write();
+    }
+
+    fn get_ray(&self, x: usize, y: usize) -> Ray {
+        let offset = self.sample_square();
+
+        let pixel_center = self.pixel00_loc
+            + ((x as f64 + offset.x) * self.pixel_delta_u)
+            + ((y as f64 + offset.y) * self.pixel_delta_v);
+        let ray_direction = pixel_center - self.camera_center;
+
+        Ray::new(self.camera_center, ray_direction)
+    }
+
+    fn sample_square(&self) -> DVec3 {
+        DVec3::new(random_double() - 0.5, random_double() - 0.5, 0.0)
     }
 
     fn ray_color(&self, ray: &Ray, world: &HittableList) -> Color {
@@ -75,4 +100,5 @@ impl Camera {
 
     const IMAGE_W: f64 = 800.0;
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
+    const SAMPLES_PER_PIXEL: i32 = 10;
 }

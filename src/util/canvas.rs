@@ -22,8 +22,8 @@ impl Canvas {
         }
     }
 
-    pub fn progress_bar(&self) -> kdam::Bar {
-        tqdm!(total = self.width * self.height)
+    pub fn progress_bar(&self, samples_per_pixel: i32) -> kdam::Bar {
+        tqdm!(total = self.width * self.height * samples_per_pixel as usize)
     }
 
     pub fn write(&self) {
