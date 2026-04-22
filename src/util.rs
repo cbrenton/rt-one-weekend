@@ -5,7 +5,7 @@ mod ray;
 
 pub use canvas::Canvas;
 pub use color::Color;
-pub use interval::Interval;
+pub use interval::{DInterval, IInterval, Interval};
 pub use ray::Ray;
 
 use rand::prelude::*;

@@ -1,4 +1,4 @@
-use crate::util::{Interval, Ray};
+use crate::util::{DInterval, Ray};
 use glam::DVec3;
 
 use super::{HitRecord, Hittable};
@@ -15,7 +15,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_t: DInterval, rec: &mut HitRecord) -> bool {
         let oc = self.center - ray.origin();
 
         let a = ray.direction().length_squared();
