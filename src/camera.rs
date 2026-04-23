@@ -15,7 +15,7 @@ impl Default for CameraConfig {
         Self {
             image_width: 800.0,
             aspect_ratio: 16.0 / 9.0,
-            samples_per_pixel: 10,
+            samples_per_pixel: 100,
             max_depth: 10,
         }
     }
