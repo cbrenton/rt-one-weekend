@@ -17,6 +17,7 @@ use std::ops::Range;
 // NOTE: for infinity, use f64::INFINITY
 // NOTE: for pi, use f64::consts::PI
 // NOTE: for degrees to radians, use f64::to_radians()
+pub const ALMOST_ZERO: f64 = 1e-6;
 
 // NOTE: rust inlines small functions automatically. I assume this counts
 /// Returns a double between 0.0 and 1.0.

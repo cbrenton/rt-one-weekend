@@ -1,5 +1,5 @@
 use crate::geom::{HitRecord, Hittable, HittableList};
-use crate::util::{Canvas, Color, Interval, Ray, random_double};
+use crate::util::{ALMOST_ZERO, Canvas, Color, Interval, Ray, random_double};
 use glam::DVec3;
 use kdam::BarExt;
 
@@ -121,7 +121,7 @@ impl Camera {
             return DVec3::ZERO;
         }
 
-        if let Some(rec) = world.hit(ray, Interval::new(1e-6, f64::INFINITY)) {
+        if let Some(rec) = world.hit(ray, Interval::new(ALMOST_ZERO, f64::INFINITY)) {
             if let Some(mat) = rec.mat.clone() {
                 if let Some(scatter) = mat.scatter(ray, &rec) {
                     scatter.attenuation * self.ray_color(&scatter.scattered, world, depth + 1)
