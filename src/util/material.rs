@@ -3,14 +3,13 @@ use crate::{
     util::{Color, Ray, near_zero, random_unit_vector},
 };
 
+pub struct ScatterData {
+    pub attenuation: Color,
+    pub scattered: Ray,
+}
+
 pub trait Material {
-    fn scatter(
-        &self,
-        ray_in: &Ray,
-        rec: &HitRecord,
-        attenuation: &mut Color,
-        scattered: &mut Ray,
-    ) -> bool;
+    fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<ScatterData>;
 }
 
 #[derive(Default, Copy, Clone)]
@@ -25,22 +24,18 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(
-        &self,
-        _ray_in: &Ray,
-        rec: &HitRecord,
-        attenuation: &mut Color,
-        scattered: &mut Ray,
-    ) -> bool {
+    fn scatter(&self, _ray_in: &Ray, rec: &HitRecord) -> Option<ScatterData> {
         // diffuse reflectance - ray gets scattered in a random dir from the normal
         let mut scatter_dir = rec.normal + random_unit_vector();
         if near_zero(scatter_dir) {
             scatter_dir = rec.normal
         }
 
-        *scattered = Ray::new(rec.point, scatter_dir);
-        *attenuation = self.albedo;
-        true
+        let result = ScatterData {
+            attenuation: self.albedo,
+            scattered: Ray::new(rec.point, scatter_dir),
+        };
+        Some(result)
     }
 }
 
@@ -60,19 +55,19 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(
-        &self,
-        ray_in: &Ray,
-        rec: &HitRecord,
-        attenuation: &mut Color,
-        scattered: &mut Ray,
-    ) -> bool {
+    fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<ScatterData> {
         // perfect reflectance - ray gets reflected about the normal
         let mut reflected = ray_in.direction().reflect(rec.normal);
         reflected = reflected.normalize() + (self.fuzziness * random_unit_vector());
 
-        *scattered = Ray::new(rec.point, reflected);
-        *attenuation = self.albedo;
-        scattered.direction().dot(rec.normal) > 0.0
+        let result = ScatterData {
+            attenuation: self.albedo,
+            scattered: Ray::new(rec.point, reflected),
+        };
+        if result.scattered.direction().dot(rec.normal) > 0.0 {
+            Some(result)
+        } else {
+            None
+        }
     }
 }

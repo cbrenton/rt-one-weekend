@@ -118,12 +118,9 @@ impl Camera {
         }
 
         if let Some(rec) = world.hit(ray, Interval::new(0.001, f64::INFINITY)) {
-            let mut scattered = Ray::default();
-            let mut attenuation = Color::ZERO;
-
             if let Some(mat) = rec.mat.clone() {
-                if mat.scatter(ray, &rec, &mut attenuation, &mut scattered) {
-                    attenuation * self.ray_color(&scattered, world, depth + 1)
+                if let Some(scatter) = mat.scatter(ray, &rec) {
+                    scatter.attenuation * self.ray_color(&scatter.scattered, world, depth + 1)
                 } else {
                     Color::ZERO
                 }
