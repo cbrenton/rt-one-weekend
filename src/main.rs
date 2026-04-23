@@ -8,7 +8,10 @@ use camera::Camera;
 use geom::{HittableList, Sphere};
 use glam::DVec3;
 
-use crate::util::{Color, Lambertian, Metal};
+use crate::{
+    geom::Plane,
+    util::{Color, Lambertian, Metal},
+};
 
 fn main() {
     let mut world = HittableList::default();
@@ -20,9 +23,9 @@ fn main() {
     let material_left = Arc::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.01));
     let material_right = Arc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 0.3));
 
-    world.add(Sphere::new(
-        DVec3::new(0.0, -100.5, -1.0),
-        100.0,
+    world.add(Plane::new(
+        DVec3::new(0.0, -0.25, 0.0),
+        DVec3::new(0.0, 1.0, 0.0),
         material_ground,
     ));
     world.add(Sphere::new(

@@ -1,14 +1,17 @@
+mod plane;
 mod sphere;
 
 use crate::util::{DInterval, Material, Ray};
 use glam::DVec3;
-use std::{mem::swap, sync::Arc};
+use std::{any::type_name_of_val, sync::Arc};
 
+pub use plane::Plane;
 pub use sphere::Sphere;
 
 // TODO: move this elsewhere?
 pub trait Hittable {
     fn hit(&self, ray: &Ray, ray_t: DInterval) -> Option<HitRecord>;
+    fn debug(&self);
 }
 
 // TODO: move this elsewhere?
@@ -71,5 +74,9 @@ impl Hittable for HittableList {
             }
         }
         result
+    }
+
+    fn debug(&self) {
+        println!("HittableList");
     }
 }

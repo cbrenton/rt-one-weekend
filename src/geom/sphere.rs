@@ -54,4 +54,11 @@ impl Hittable for Sphere {
 
         Some(rec)
     }
+
+    fn debug(&self) {
+        println!(
+            "Sphere with radius {} at center {}",
+            self.radius, self.center
+        );
+    }
 }

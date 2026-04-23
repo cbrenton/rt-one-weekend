@@ -24,7 +24,7 @@ impl Default for CameraConfig {
 pub struct Camera {
     config: CameraConfig,
     img: Canvas,
-    camera_center: DVec3,
+    pub camera_center: DVec3,
     pixel00_loc: DVec3,
     pixel_delta_u: DVec3,
     pixel_delta_v: DVec3,
@@ -97,7 +97,11 @@ impl Camera {
         self.img.write();
     }
 
-    fn get_ray(&self, x: usize, y: usize) -> Ray {
+    pub fn debug(&mut self, world: &HittableList, ray: &Ray) {
+        self.ray_color(&ray, world, 0);
+    }
+
+    pub fn get_ray(&self, x: usize, y: usize) -> Ray {
         let offset = self.sample_square();
 
         let pixel_center = self.pixel00_loc
@@ -117,7 +121,7 @@ impl Camera {
             return DVec3::ZERO;
         }
 
-        if let Some(rec) = world.hit(ray, Interval::new(0.001, f64::INFINITY)) {
+        if let Some(rec) = world.hit(ray, Interval::new(1e-6, f64::INFINITY)) {
             if let Some(mat) = rec.mat.clone() {
                 if let Some(scatter) = mat.scatter(ray, &rec) {
                     scatter.attenuation * self.ray_color(&scatter.scattered, world, depth + 1)
