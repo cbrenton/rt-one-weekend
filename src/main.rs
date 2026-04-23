@@ -9,7 +9,7 @@ use geom::{HittableList, Sphere};
 use glam::DVec3;
 
 use crate::{
-    geom::Plane,
+    geom::{Plane, Triangle},
     util::{Color, Lambertian, Metal},
 };
 
@@ -24,7 +24,7 @@ fn main() {
     let material_right = Arc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 0.3));
 
     world.add(Plane::new(
-        DVec3::new(0.0, -0.25, 0.0),
+        DVec3::new(0.0, -0.5, 0.0),
         DVec3::new(0.0, 1.0, 0.0),
         material_ground,
     ));
@@ -34,7 +34,10 @@ fn main() {
         material_center,
     ));
     world.add(Sphere::new(DVec3::new(-1.0, 0.0, -1.0), 0.5, material_left));
-    world.add(Sphere::new(DVec3::new(1.0, 0.0, -1.0), 0.5, material_right));
+    let a = DVec3::new(0.0, -0.5, -1.2);
+    let b = DVec3::new(1.0, -0.5, -1.2);
+    let c = DVec3::new(1.0, 0.5, -1.2);
+    world.add(Triangle::new(a, b, c, material_right));
 
     // TODO: I don't like how Camera includes image writing - ideally this will get extracted in
     // the future

@@ -1,5 +1,6 @@
 mod plane;
 mod sphere;
+mod triangle;
 
 use crate::util::{DInterval, Material, Ray};
 use glam::DVec3;
@@ -7,6 +8,7 @@ use std::{any::type_name_of_val, sync::Arc};
 
 pub use plane::Plane;
 pub use sphere::Sphere;
+pub use triangle::Triangle;
 
 // TODO: move this elsewhere?
 pub trait Hittable {
