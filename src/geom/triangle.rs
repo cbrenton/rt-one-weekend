@@ -63,6 +63,8 @@ impl Hittable for Triangle {
         let mut rec = HitRecord {
             point: ray.at(t),
             t,
+            u,
+            v,
             ..Default::default()
         };
         rec.set_face_normal(ray, normal.normalize());

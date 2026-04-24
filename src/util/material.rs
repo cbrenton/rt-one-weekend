@@ -1,8 +1,10 @@
+use std::sync::Arc;
+
 use glam::DVec3;
 
 use crate::{
     geom::HitRecord,
-    util::{Color, Ray, near_zero, random_double, random_unit_vector},
+    util::{Color, Ray, SolidColor, Texture, near_zero, random_double, random_unit_vector},
 };
 
 pub struct ScatterData {
@@ -14,14 +16,20 @@ pub trait Material {
     fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<ScatterData>;
 }
 
-#[derive(Default, Copy, Clone)]
+#[derive(Clone)]
 pub struct Lambertian {
-    pub albedo: Color,
+    tex: Arc<dyn Texture>,
 }
 
 impl Lambertian {
-    pub fn new(albedo: Color) -> Self {
-        Self { albedo }
+    pub fn new(tex: Arc<dyn Texture>) -> Self {
+        Self { tex }
+    }
+
+    pub fn from_color(albedo: Color) -> Self {
+        Self {
+            tex: Arc::new(SolidColor::new(albedo)),
+        }
     }
 }
 
@@ -34,7 +42,7 @@ impl Material for Lambertian {
         }
 
         let result = ScatterData {
-            attenuation: self.albedo,
+            attenuation: self.tex.value(rec.u, rec.v, rec.point),
             scattered: Ray::new(rec.point, scatter_dir),
         };
         Some(result)

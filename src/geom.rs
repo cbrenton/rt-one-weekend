@@ -24,6 +24,8 @@ pub struct HitRecord {
     pub point: DVec3,
     pub normal: DVec3,
     pub t: f64,
+    pub u: f64,
+    pub v: f64,
     pub front_face: bool,
     pub mat: Option<Arc<dyn Material>>,
 }
@@ -34,6 +36,8 @@ impl Default for HitRecord {
             point: DVec3::ZERO,
             normal: DVec3::ZERO,
             t: 0.0,
+            u: 0.0,
+            v: 0.0,
             front_face: false,
             mat: None,
         }
