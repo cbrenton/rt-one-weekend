@@ -12,6 +12,7 @@ pub struct TriangleMesh {
     vertices: Vec<DVec3>,
     triangles: Vec<IVec3>,
     is_inlined: bool,
+    cache: Vec<Triangle>,
     mat: Arc<dyn Material>,
 }
 
@@ -22,10 +23,19 @@ impl TriangleMesh {
         is_inlined: bool,
         mat: Arc<dyn Material>,
     ) -> Self {
+        let mut cache: Vec<Triangle> = vec![];
+        for triangle in &triangles {
+            let a = vertices[triangle.x as usize];
+            let b = vertices[triangle.y as usize];
+            let c = vertices[triangle.z as usize];
+            let tri = Triangle::new(a, b, c, mat.clone());
+            cache.push(tri);
+        }
         Self {
             vertices,
             triangles,
             is_inlined,
+            cache,
             mat,
         }
     }
@@ -95,12 +105,12 @@ impl Hittable for TriangleMesh {
         let mut closest_so_far = ray_t.max;
         let mut result: Option<HitRecord> = None;
 
-        for triangle in &self.triangles {
-            let a = self.vertices[triangle.x as usize];
-            let b = self.vertices[triangle.y as usize];
-            let c = self.vertices[triangle.z as usize];
+        if self.is_inlined {
+            for triangle in &self.triangles {
+                let a = self.vertices[triangle.x as usize];
+                let b = self.vertices[triangle.y as usize];
+                let c = self.vertices[triangle.z as usize];
 
-            if self.is_inlined {
                 if let Some(rec) = self.hit_tri(
                     ray,
                     DInterval::new(ray_t.min, closest_so_far),
@@ -112,8 +122,9 @@ impl Hittable for TriangleMesh {
                     closest_so_far = rec.t;
                     result = Some(rec);
                 }
-            } else {
-                let triangle = Triangle::new(a, b, c, self.mat.clone());
+            }
+        } else {
+            for triangle in &self.cache {
                 if let Some(rec) = triangle.hit(ray, DInterval::new(ray_t.min, closest_so_far)) {
                     closest_so_far = rec.t;
                     result = Some(rec);
@@ -125,9 +136,10 @@ impl Hittable for TriangleMesh {
 
     fn debug(&self) {
         println!(
-            "TriangleMesh with {} vertices and {} total triangles",
+            "TriangleMesh with {} vertices and {} total triangles. {} triangles cached",
             self.vertices.len(),
-            self.triangles.len()
+            self.triangles.len(),
+            self.cache.len(),
         );
     }
 }

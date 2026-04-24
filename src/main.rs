@@ -9,7 +9,7 @@ use geom::{HittableList, Sphere};
 use glam::{DVec3, IVec3};
 
 use crate::{
-    geom::{Plane, Triangle, TriangleMesh},
+    geom::{Hittable, Plane, Triangle, TriangleMesh},
     util::{Color, Lambertian, Metal},
 };
 
@@ -40,12 +40,9 @@ fn main() {
         IVec3::new(2, 1, 3),
         IVec3::new(1, 0, 3),
     ];
-    world.add(TriangleMesh::new(
-        vertices,
-        triangles,
-        false,
-        material_center,
-    ));
+    let mesh = TriangleMesh::new(vertices, triangles, false, material_center);
+    mesh.debug();
+    world.add(mesh);
 
     // TODO: I don't like how Camera includes image writing - ideally this will get extracted in
     // the future
