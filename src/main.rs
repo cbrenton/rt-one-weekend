@@ -10,7 +10,7 @@ use glam::{DVec3, IVec3};
 
 use crate::{
     geom::{Hittable, Plane, Triangle, TriangleMesh},
-    util::{Color, Lambertian, Metal},
+    util::{Color, Dielectric, Lambertian, Metal},
 };
 
 fn main() {
@@ -22,6 +22,9 @@ fn main() {
     let material_center = Arc::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
     let material_left = Arc::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.01));
     let material_right = Arc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 0.3));
+    // let material_glass = Arc::new(Dielectric::new(1.50));
+    let material_glass = Arc::new(Dielectric::new(1.5));
+    let material_bubble = Arc::new(Dielectric::new(1.0 / 1.5));
 
     world.add(Plane::new(
         DVec3::new(0.0, -0.5, 0.0),
@@ -29,7 +32,16 @@ fn main() {
         material_ground,
     ));
     world.add(Sphere::new(DVec3::new(1.0, 0.0, -1.2), 0.5, material_right));
-    world.add(Sphere::new(DVec3::new(-1.0, 0.0, -1.0), 0.5, material_left));
+    world.add(Sphere::new(
+        DVec3::new(-1.0, 0.0, -1.0),
+        0.5,
+        material_glass,
+    ));
+    world.add(Sphere::new(
+        DVec3::new(-1.0, 0.0, -1.0),
+        0.4,
+        material_bubble,
+    ));
     let a = DVec3::new(-0.7, 0.5, -1.2);
     let b = DVec3::new(0.7, 0.5, -1.2);
     let c = DVec3::new(0.0, -0.5, -1.2);
