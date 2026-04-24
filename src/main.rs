@@ -6,10 +6,10 @@ use std::sync::Arc;
 
 use camera::Camera;
 use geom::{HittableList, Sphere};
-use glam::DVec3;
+use glam::{DVec3, IVec3};
 
 use crate::{
-    geom::{Plane, Triangle},
+    geom::{Plane, Triangle, TriangleMesh},
     util::{Color, Lambertian, Metal},
 };
 
@@ -28,16 +28,24 @@ fn main() {
         DVec3::new(0.0, 1.0, 0.0),
         material_ground,
     ));
-    world.add(Sphere::new(
-        DVec3::new(0.0, 0.0, -1.2),
-        0.5,
+    world.add(Sphere::new(DVec3::new(1.0, 0.0, -1.2), 0.5, material_right));
+    world.add(Sphere::new(DVec3::new(-1.0, 0.0, -1.0), 0.5, material_left));
+    let a = DVec3::new(-0.7, 0.5, -1.2);
+    let b = DVec3::new(0.7, 0.5, -1.2);
+    let c = DVec3::new(0.0, -0.5, -1.2);
+    let d = DVec3::new(0.0, 0.0, -0.7);
+    let vertices = vec![a, b, c, d];
+    let triangles = vec![
+        IVec3::new(0, 2, 3),
+        IVec3::new(2, 1, 3),
+        IVec3::new(1, 0, 3),
+    ];
+    world.add(TriangleMesh::new(
+        vertices,
+        triangles,
+        false,
         material_center,
     ));
-    world.add(Sphere::new(DVec3::new(-1.0, 0.0, -1.0), 0.5, material_left));
-    let a = DVec3::new(0.0, -0.5, -1.2);
-    let b = DVec3::new(1.0, -0.5, -1.2);
-    let c = DVec3::new(1.0, 0.5, -1.2);
-    world.add(Triangle::new(a, b, c, material_right));
 
     // TODO: I don't like how Camera includes image writing - ideally this will get extracted in
     // the future
