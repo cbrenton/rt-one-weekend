@@ -9,20 +9,28 @@ use geom::{HittableList, Sphere};
 use glam::{DVec3, IVec3};
 
 use crate::{
-    geom::{Hittable, Plane, Triangle, TriangleMesh},
+    camera::CameraConfig,
+    geom::{Hittable, Plane, TriangleMesh},
     util::{Color, Dielectric, Lambertian, Metal},
 };
 
 fn main() {
     let mut world = HittableList::default();
 
-    let mut camera = Camera::default();
+    let config = CameraConfig {
+        samples_per_pixel: 100,
+        look_from: DVec3::new(-2.0, 2.0, 1.0),
+        look_at: DVec3::new(0.0, 0.0, -1.0),
+        up: DVec3::new(0.0, 1.0, 0.0),
+        vfov: 20.0,
+        ..Default::default()
+    };
+    let mut camera = Camera::new(config);
 
     let material_ground = Arc::new(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let material_center = Arc::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
-    let material_left = Arc::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.01));
+    let _material_left = Arc::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.01));
     let material_right = Arc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 0.3));
-    // let material_glass = Arc::new(Dielectric::new(1.50));
     let material_glass = Arc::new(Dielectric::new(1.5));
     let material_bubble = Arc::new(Dielectric::new(1.0 / 1.5));
 

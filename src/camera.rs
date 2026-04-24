@@ -8,6 +8,10 @@ pub struct CameraConfig {
     pub aspect_ratio: f64,
     pub samples_per_pixel: i32,
     pub max_depth: i32,
+    pub vfov: f64,
+    pub look_from: DVec3,
+    pub look_at: DVec3,
+    pub up: DVec3,
 }
 
 impl Default for CameraConfig {
@@ -17,6 +21,10 @@ impl Default for CameraConfig {
             aspect_ratio: 16.0 / 9.0,
             samples_per_pixel: 100,
             max_depth: 10,
+            vfov: 90.0,
+            look_from: DVec3::ZERO,
+            look_at: DVec3::new(0.0, 0.0, -1.0),
+            up: DVec3::new(0.0, 1.0, 0.0),
         }
     }
 }
@@ -24,10 +32,13 @@ impl Default for CameraConfig {
 pub struct Camera {
     config: CameraConfig,
     img: Canvas,
-    pub camera_center: DVec3,
+    camera_center: DVec3,
     pixel00_loc: DVec3,
     pixel_delta_u: DVec3,
     pixel_delta_v: DVec3,
+    u: DVec3,
+    v: DVec3,
+    w: DVec3,
 }
 
 impl Default for Camera {
@@ -41,26 +52,31 @@ impl Camera {
     pub fn new(config: CameraConfig) -> Self {
         // make sure height is at least 1
         let image_h = (config.image_width / config.aspect_ratio).max(1.0);
+        let camera_center = config.look_from;
 
-        let focal_length = 1.0;
-        let viewport_height = 2.0;
+        let focal_length = (config.look_from - config.look_at).length();
+        let theta = config.vfov.to_radians();
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h * focal_length;
         // recalculate aspect ratio because image_h might not be what we intended
         let viewport_width = viewport_height * (config.image_width / image_h);
-        let camera_center = DVec3::ZERO;
+
+        // calculate u,v,w unit basis vectors for camera
+        let w = (config.look_from - config.look_at).normalize();
+        let u = config.up.cross(w).normalize();
+        let v = w.cross(u);
 
         // calculate the vectors along the horizontal and vertical edges of the viewport
-        let viewport_u = DVec3::new(viewport_width, 0.0, 0.0);
-        let viewport_v = DVec3::new(0.0, -viewport_height, 0.0);
+        let viewport_u = viewport_width * u;
+        let viewport_v = viewport_height * -v;
 
         // calculate the horizontal and vertical delta vectors from pixel to pixel
         let pixel_delta_u = viewport_u / config.image_width;
         let pixel_delta_v = viewport_v / image_h;
 
         // calculate the location of the upper left pixel
-        let viewport_upper_left = camera_center
-            - DVec3::new(0.0, 0.0, focal_length)
-            - viewport_u / 2.0
-            - viewport_v / 2.0;
+        let viewport_upper_left =
+            camera_center - (focal_length * w) - viewport_u / 2.0 - viewport_v / 2.0;
 
         let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
@@ -73,6 +89,9 @@ impl Camera {
             pixel00_loc,
             pixel_delta_u,
             pixel_delta_v,
+            u,
+            v,
+            w,
         }
     }
 
