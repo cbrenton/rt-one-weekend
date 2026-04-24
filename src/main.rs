@@ -48,11 +48,12 @@ fn main() {
     ));
     let checker_mat = Arc::new(Lambertian::new(checker_tex));
     let plane_left = Triangle::new(plane_a, plane_b, plane_c, checker_mat.clone());
-    let plane_right = Triangle::new(plane_b, plane_c, plane_d, checker_mat);
+    let plane_right = Triangle::new(plane_b, plane_c, plane_d, checker_mat.clone());
     world.add(plane_left);
     world.add(plane_right);
 
-    world.add(Sphere::new(DVec3::new(1.0, 0.0, -1.2), 0.5, material_right));
+    // world.add(Sphere::new(DVec3::new(1.0, 0.0, -1.2), 0.5, material_right));
+    world.add(Sphere::new(DVec3::new(1.0, 0.0, -1.2), 0.5, checker_mat));
     world.add(Sphere::new(
         DVec3::new(-1.0, 0.0, -1.0),
         0.5,

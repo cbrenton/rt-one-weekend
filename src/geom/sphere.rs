@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{f64::consts::PI, sync::Arc};
 
 use crate::util::{DInterval, Material, Ray};
 use glam::DVec3;
@@ -48,6 +48,9 @@ impl Hittable for Sphere {
         let mut rec = HitRecord::default();
         rec.t = root;
         rec.point = ray.at(rec.t);
+        let d = (rec.point - self.center).normalize();
+        rec.u = 0.5 + (-d.z).atan2(d.x) / (2.0 * PI);
+        rec.v = 0.5 + d.y.asin() / (PI);
         let outward_normal = (rec.point - self.center) / self.radius;
         rec.set_face_normal(ray, outward_normal);
         rec.mat = Some(self.mat.clone());
