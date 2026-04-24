@@ -23,6 +23,8 @@ fn main() {
         look_at: DVec3::new(0.0, 0.0, -1.0),
         up: DVec3::new(0.0, 1.0, 0.0),
         vfov: 20.0,
+        defocus_angle: 2.0,
+        focus_distance: 3.4,
         ..Default::default()
     };
     let mut camera = Camera::new(config);

@@ -65,6 +65,19 @@ pub fn random_on_hemisphere(normal: DVec3) -> DVec3 {
     }
 }
 
+pub fn random_in_unit_disk() -> DVec3 {
+    loop {
+        let p = DVec3::new(
+            random_double_range(-1.0..1.0),
+            random_double_range(-1.0..1.0),
+            0.0,
+        );
+        if p.length_squared() < 1.0 {
+            return p;
+        }
+    }
+}
+
 pub fn near_zero(v: DVec3) -> bool {
     let s = 1e-8;
     (v.x.abs() < s) && (v.y.abs() < s) && (v.z.abs() < s)

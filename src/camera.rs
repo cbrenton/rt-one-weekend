@@ -1,17 +1,21 @@
 use crate::geom::{HitRecord, Hittable, HittableList};
-use crate::util::{ALMOST_ZERO, Canvas, Color, Interval, Ray, random_double};
+use crate::util::{ALMOST_ZERO, Canvas, Color, Interval, Ray, random_double, random_in_unit_disk};
 use glam::DVec3;
 use kdam::BarExt;
 
 pub struct CameraConfig {
+    // TODO: should probably be called horizontal_resolution
     pub image_width: f64,
     pub aspect_ratio: f64,
+    // TODO: these two should probably go in a separate RenderConfig
     pub samples_per_pixel: i32,
     pub max_depth: i32,
     pub vfov: f64,
     pub look_from: DVec3,
     pub look_at: DVec3,
     pub up: DVec3,
+    pub defocus_angle: f64,
+    pub focus_distance: f64, // distance from camera look_from point to plane of perfect focus
 }
 
 impl Default for CameraConfig {
@@ -25,6 +29,8 @@ impl Default for CameraConfig {
             look_from: DVec3::ZERO,
             look_at: DVec3::new(0.0, 0.0, -1.0),
             up: DVec3::new(0.0, 1.0, 0.0),
+            defocus_angle: 0.0,
+            focus_distance: 10.0,
         }
     }
 }
@@ -36,9 +42,8 @@ pub struct Camera {
     pixel00_loc: DVec3,
     pixel_delta_u: DVec3,
     pixel_delta_v: DVec3,
-    u: DVec3,
-    v: DVec3,
-    w: DVec3,
+    defocus_disk_u: DVec3,
+    defocus_disk_v: DVec3,
 }
 
 impl Default for Camera {
@@ -57,7 +62,7 @@ impl Camera {
         let focal_length = (config.look_from - config.look_at).length();
         let theta = config.vfov.to_radians();
         let h = (theta / 2.0).tan();
-        let viewport_height = 2.0 * h * focal_length;
+        let viewport_height = 2.0 * h * config.focus_distance;
         // recalculate aspect ratio because image_h might not be what we intended
         let viewport_width = viewport_height * (config.image_width / image_h);
 
@@ -76,9 +81,14 @@ impl Camera {
 
         // calculate the location of the upper left pixel
         let viewport_upper_left =
-            camera_center - (focal_length * w) - viewport_u / 2.0 - viewport_v / 2.0;
+            camera_center - (config.focus_distance * w) - viewport_u / 2.0 - viewport_v / 2.0;
 
         let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+
+        let defocus_radius =
+            config.focus_distance * (config.defocus_angle / 2.0).to_radians().tan();
+        let defocus_disk_u = u * defocus_radius;
+        let defocus_disk_v = v * defocus_radius;
 
         let img = Canvas::new(config.image_width as usize, image_h as usize);
 
@@ -89,9 +99,8 @@ impl Camera {
             pixel00_loc,
             pixel_delta_u,
             pixel_delta_v,
-            u,
-            v,
-            w,
+            defocus_disk_u,
+            defocus_disk_v,
         }
     }
 
@@ -126,9 +135,20 @@ impl Camera {
         let pixel_center = self.pixel00_loc
             + ((x as f64 + offset.x) * self.pixel_delta_u)
             + ((y as f64 + offset.y) * self.pixel_delta_v);
-        let ray_direction = pixel_center - self.camera_center;
 
-        Ray::new(self.camera_center, ray_direction)
+        let ray_origin = if self.config.defocus_angle <= 0.0 {
+            self.camera_center
+        } else {
+            self.defocus_disk_sample()
+        };
+        let ray_direction = pixel_center - ray_origin;
+
+        Ray::new(ray_origin, ray_direction)
+    }
+
+    fn defocus_disk_sample(&self) -> DVec3 {
+        let p = random_in_unit_disk();
+        self.camera_center + (p.x * self.defocus_disk_u) + (p.y * self.defocus_disk_v)
     }
 
     fn sample_square(&self) -> DVec3 {
