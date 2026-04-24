@@ -16,6 +16,7 @@ pub struct CameraConfig {
     pub up: DVec3,
     pub defocus_angle: f64,
     pub focus_distance: f64, // distance from camera look_from point to plane of perfect focus
+    pub background: Color,
 }
 
 impl Default for CameraConfig {
@@ -31,6 +32,7 @@ impl Default for CameraConfig {
             up: DVec3::new(0.0, 1.0, 0.0),
             defocus_angle: 0.0,
             focus_distance: 10.0,
+            background: Color::ZERO,
         }
     }
 }
@@ -59,7 +61,6 @@ impl Camera {
         let image_h = (config.image_width / config.aspect_ratio).max(1.0);
         let camera_center = config.look_from;
 
-        let focal_length = (config.look_from - config.look_at).length();
         let theta = config.vfov.to_radians();
         let h = (theta / 2.0).tan();
         let viewport_height = 2.0 * h * config.focus_distance;
@@ -162,15 +163,19 @@ impl Camera {
 
         if let Some(rec) = world.hit(ray, Interval::new(ALMOST_ZERO, f64::INFINITY)) {
             if let Some(mat) = rec.mat.clone() {
+                let color_from_emission = mat.emitted(rec.u, rec.v, rec.point);
                 if let Some(scatter) = mat.scatter(ray, &rec) {
-                    scatter.attenuation * self.ray_color(&scatter.scattered, world, depth + 1)
+                    let color_from_scatter =
+                        scatter.attenuation * self.ray_color(&scatter.scattered, world, depth + 1);
+                    color_from_emission + color_from_scatter
                 } else {
-                    Color::ZERO
+                    color_from_emission
                 }
             } else {
                 Color::ZERO
             }
         } else {
+            /*
             let unit_direction = ray.direction().normalize();
 
             // calculate how "up" y is, on a scale of 0 to 1 (add 1 to convert -1..1 -> 0..2, then
@@ -184,6 +189,8 @@ impl Camera {
             // white sky when the ray is completely downward-facing or a blue sky when it's
             // completely upward facing (or in between for most sky-intersecting rays from camera)
             (1.0 - upness) * white + upness * sky_blue
+            */
+            self.config.background
         }
     }
 }

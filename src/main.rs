@@ -1,82 +1,29 @@
 mod camera;
 mod geom;
+mod scenes;
 mod util;
 
-use std::sync::Arc;
+use std::env::args;
 
 use camera::Camera;
-use geom::{HittableList, Sphere};
-use glam::{DVec3, IVec3};
-
-use crate::{
-    camera::CameraConfig,
-    geom::{Hittable, Plane, Triangle, TriangleMesh},
-    util::{CheckerTexture, Color, Dielectric, Lambertian, Metal, SolidColor},
-};
 
 fn main() {
-    let mut world = HittableList::default();
-
-    let config = CameraConfig {
-        samples_per_pixel: 100,
-        look_from: DVec3::ZERO,
-        look_at: DVec3::new(0.0, 0.0, -1.0),
-        up: DVec3::new(0.0, 1.0, 0.0),
-        vfov: 90.0,
-        defocus_angle: 2.0,
-        focus_distance: 1.4,
-        ..Default::default()
+    // let scene_data = scenes::sample();
+    let scene_data = match args().nth(1) {
+        Some(arg) => match arg.as_str() {
+            "1" => scenes::sample(),
+            "2" => scenes::cornell_box(),
+            "3" => scenes::spooky(),
+            _ => scenes::sample(),
+        },
+        _ => scenes::sample(),
     };
+
+    let config = scene_data.config;
+    let world = scene_data.world;
+    println!("rendering scene {}", scene_data.name);
+
     let mut camera = Camera::new(config);
-
-    let material_ground = Arc::new(Lambertian::from_color(Color::new(0.8, 0.8, 0.0)));
-    let material_center = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
-    let _material_left = Arc::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.01));
-    let material_right = Arc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 0.3));
-    let material_glass = Arc::new(Dielectric::new(1.5));
-    let material_bubble = Arc::new(Dielectric::new(1.0 / 1.5));
-
-    // create a fake "plane" via 2 20x20 triangles
-    let plane_a = DVec3::new(-10.0, -0.5, -11.0);
-    let plane_b = DVec3::new(-10.0, -0.5, 9.0);
-    let plane_c = DVec3::new(10.0, -0.5, -11.0);
-    let plane_d = DVec3::new(10.0, -0.5, 9.0);
-    let checker_tex = Arc::new(CheckerTexture::new(
-        0.32,
-        Arc::new(SolidColor::new(Color::new(0.2, 0.3, 0.1))),
-        Arc::new(SolidColor::new(Color::new(0.9, 0.9, 0.9))),
-    ));
-    let checker_mat = Arc::new(Lambertian::new(checker_tex));
-    let plane_left = Triangle::new(plane_a, plane_b, plane_c, checker_mat.clone());
-    let plane_right = Triangle::new(plane_b, plane_c, plane_d, checker_mat.clone());
-    world.add(plane_left);
-    world.add(plane_right);
-
-    // world.add(Sphere::new(DVec3::new(1.0, 0.0, -1.2), 0.5, material_right));
-    world.add(Sphere::new(DVec3::new(1.0, 0.0, -1.2), 0.5, checker_mat));
-    world.add(Sphere::new(
-        DVec3::new(-1.0, 0.0, -1.0),
-        0.5,
-        material_glass,
-    ));
-    world.add(Sphere::new(
-        DVec3::new(-1.0, 0.0, -1.0),
-        0.4,
-        material_bubble,
-    ));
-    let a = DVec3::new(-0.7, 0.5, -1.2);
-    let b = DVec3::new(0.7, 0.5, -1.2);
-    let c = DVec3::new(0.0, -0.5, -1.2);
-    let d = DVec3::new(0.0, 0.0, -0.7);
-    let vertices = vec![a, b, c, d];
-    let triangles = vec![
-        IVec3::new(0, 2, 3),
-        IVec3::new(2, 1, 3),
-        IVec3::new(1, 0, 3),
-    ];
-    let mesh = TriangleMesh::new(vertices, triangles, false, material_center);
-    mesh.debug();
-    world.add(mesh);
 
     // TODO: I don't like how Camera includes image writing - ideally this will get extracted in
     // the future

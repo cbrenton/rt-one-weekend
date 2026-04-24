@@ -8,7 +8,7 @@ mod texture;
 pub use canvas::Canvas;
 pub use color::Color;
 pub use interval::{DInterval, IInterval, Interval};
-pub use material::{Dielectric, Lambertian, Material, Metal};
+pub use material::{Dielectric, DiffuseLight, Lambertian, Material, Metal};
 pub use ray::Ray;
 pub use texture::{CheckerTexture, SolidColor, Texture};
 

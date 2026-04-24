@@ -14,6 +14,9 @@ pub struct ScatterData {
 
 pub trait Material {
     fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<ScatterData>;
+    fn emitted(&self, _u: f64, _v: f64, _p: DVec3) -> Color {
+        Color::ZERO
+    }
 }
 
 #[derive(Clone)]
@@ -128,5 +131,32 @@ impl Material for Dielectric {
             scattered: Ray::new(rec.point, direction),
         };
         Some(result)
+    }
+}
+
+#[derive(Clone)]
+pub struct DiffuseLight {
+    pub tex: Arc<dyn Texture>,
+}
+
+impl DiffuseLight {
+    pub fn new(tex: Arc<dyn Texture>) -> Self {
+        Self { tex }
+    }
+
+    pub fn from_color(albedo: Color) -> Self {
+        Self {
+            tex: Arc::new(SolidColor::new(albedo)),
+        }
+    }
+}
+
+impl Material for DiffuseLight {
+    fn scatter(&self, _ray_in: &Ray, _rec: &HitRecord) -> Option<ScatterData> {
+        None
+    }
+
+    fn emitted(&self, u: f64, v: f64, p: DVec3) -> Color {
+        self.tex.value(u, v, p)
     }
 }
