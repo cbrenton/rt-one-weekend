@@ -38,3 +38,30 @@ impl Hittable for Plane {
         println!("Plane with point {} and normal {}", self.point, self.normal);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use assert_approx_eq::assert_approx_eq;
+
+    use crate::util::{Color, Lambertian};
+
+    use super::*;
+
+    #[test]
+    fn test_hit_happy_path_camera_facing() {
+        let point = DVec3::new(1.0, 1.0, 1.0);
+        let normal = DVec3::new(0.0, 0.0, -1.0);
+        let _mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
+
+        let p = Plane::new(point, normal, _mat);
+
+        let ray = Ray::new(DVec3::ZERO, DVec3::new(0.0, 0.0, 1.0));
+        let ray_t = DInterval::UNIVERSE;
+
+        let ray_hit = p.hit(&ray, ray_t).unwrap();
+
+        assert_approx_eq!(ray_hit.t, 1.0);
+        assert_eq!(ray_hit.point, DVec3::new(0.0, 0.0, 1.0));
+        assert_eq!(ray_hit.normal, p.normal);
+    }
+}
