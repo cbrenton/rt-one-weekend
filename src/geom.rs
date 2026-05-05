@@ -1,4 +1,3 @@
-mod plane;
 mod sphere;
 mod triangle;
 mod triangle_mesh;
@@ -7,7 +6,6 @@ use crate::util::{DInterval, Material, Ray};
 use glam::DVec3;
 use std::{any::type_name_of_val, sync::Arc};
 
-pub use plane::Plane;
 pub use sphere::Sphere;
 pub use triangle::Triangle;
 pub use triangle_mesh::TriangleMesh;
