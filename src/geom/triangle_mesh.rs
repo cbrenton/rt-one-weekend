@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     geom::Triangle,
-    util::{ALMOST_ZERO, DInterval, Material, Ray},
+    util::{ALMOST_ZERO, Bounds3, DInterval, Material, Ray},
 };
 use glam::{DVec3, IVec3};
 
@@ -134,6 +134,27 @@ impl Hittable for TriangleMesh {
         result
     }
 
+    fn aabb(&self) -> Bounds3 {
+        // TODO: make this work when inlined
+        if self.is_inlined {
+            Bounds3::UNIVERSE
+        } else {
+            for tri in &self.cache {
+                println!("triangle bounding box: {:?}", tri.aabb())
+            }
+            Bounds3 {
+                min: self
+                    .cache
+                    .iter()
+                    .fold(DVec3::MAX, |cur_min, tri| cur_min.min(tri.aabb().min)),
+                max: self
+                    .cache
+                    .iter()
+                    .fold(DVec3::MIN, |cur_max, tri| cur_max.max(tri.aabb().max)),
+            }
+        }
+    }
+
     fn debug(&self) {
         println!(
             "TriangleMesh with {} vertices and {} total triangles. {} triangles cached",
@@ -155,22 +176,55 @@ mod tests {
     #[test]
     fn test_hit_happy_path() {
         let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
+
+        let a = DVec3::new(-1.0, -1.0, 1.0);
+        let b = DVec3::new(-1.0, 1.0, 1.0);
+        let c = DVec3::new(1.0, 1.0, 1.0);
+        let d = DVec3::new(1.0, -1.0, 1.0);
+
         let mesh = TriangleMesh::new(
-            vec![
-                DVec3::new(-1.0, -1.0, 1.0),
-                DVec3::new(-1.0, 1.0, 1.0),
-                DVec3::new(1.0, 1.0, 1.0),
-            ],
-            vec![IVec3::new(0, 1, 2)],
+            vec![a, b, c, d],
+            vec![IVec3::new(0, 1, 2), IVec3::new(2, 3, 0)],
             false,
             mat,
         );
 
-        let ray = Ray::new(DVec3::ZERO, DVec3::new(0.0, 0.0, 1.0));
-        let ray_hit = mesh.hit(&ray, DInterval::UNIVERSE).unwrap();
+        let ray_tri_1 = Ray::new(DVec3::ZERO, DVec3::new(-0.5, 0.5, 1.0));
+        let ray_hit_1 = mesh.hit(&ray_tri_1, DInterval::UNIVERSE).unwrap();
 
-        assert_approx_eq!(ray_hit.t, 1.0);
-        assert_eq!(ray_hit.point, DVec3::new(0.0, 0.0, 1.0));
-        assert_eq!(ray_hit.normal, DVec3::new(0.0, 0.0, -1.0));
+        assert_approx_eq!(ray_hit_1.t, 1.0);
+        assert_eq!(ray_hit_1.point, DVec3::new(-0.5, 0.5, 1.0));
+        assert_eq!(ray_hit_1.normal, DVec3::new(0.0, 0.0, -1.0));
+
+        let ray_tri_2 = Ray::new(DVec3::ZERO, DVec3::new(0.5, -0.5, 1.0));
+        let ray_hit_2 = mesh.hit(&ray_tri_2, DInterval::UNIVERSE).unwrap();
+
+        assert_approx_eq!(ray_hit_2.t, 1.0);
+        assert_eq!(ray_hit_2.point, DVec3::new(0.5, -0.5, 1.0));
+        assert_eq!(ray_hit_2.normal, DVec3::new(0.0, 0.0, -1.0));
+    }
+
+    #[test]
+    fn test_aabb() {
+        // TODO: implement NullMat or something similar
+        let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
+
+        let a = DVec3::new(-1.0, -1.0, 1.0);
+        let b = DVec3::new(-1.0, 1.0, 1.0);
+        let c = DVec3::new(1.0, 1.0, 1.0);
+        let d = DVec3::new(1.0, -1.0, 1.0);
+
+        let mesh = TriangleMesh::new(
+            vec![a, b, c, d],
+            vec![IVec3::new(0, 1, 2), IVec3::new(2, 3, 0)],
+            false,
+            mat,
+        );
+
+        let expected_min = DVec3::new(-1.0, -1.0, 1.0);
+        let expected_max = DVec3::new(1.0, 1.0, 1.0);
+        // TODO: figure out how to implement == for this
+        assert_eq!(mesh.aabb().min, expected_min);
+        assert_eq!(mesh.aabb().max, expected_max);
     }
 }

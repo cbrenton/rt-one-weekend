@@ -153,7 +153,7 @@ pub fn cornell_box() -> SceneData {
 pub fn spooky() -> SceneData {
     let config = CameraConfig {
         aspect_ratio: 16.0 / 9.0,
-        image_width: 400.0,
+        image_width: 2000.0,
         samples_per_pixel: 100,
         max_depth: 50,
         vfov: 20.0,

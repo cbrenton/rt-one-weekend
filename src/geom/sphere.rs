@@ -1,6 +1,6 @@
 use std::{f64::consts::PI, sync::Arc};
 
-use crate::util::{DInterval, Material, Ray};
+use crate::util::{Bounds3, DInterval, Material, Ray};
 use glam::DVec3;
 
 use super::{HitRecord, Hittable};
@@ -58,6 +58,13 @@ impl Hittable for Sphere {
         Some(rec)
     }
 
+    fn aabb(&self) -> Bounds3 {
+        Bounds3 {
+            min: self.center - self.radius,
+            max: self.center + self.radius,
+        }
+    }
+
     fn debug(&self) {
         println!(
             "Sphere with radius {} at center {}",
@@ -91,5 +98,23 @@ mod tests {
         assert_approx_eq!(ray_hit.t, 0.5);
         assert_eq!(ray_hit.point, DVec3::new(0.0, 0.0, -0.5));
         assert_eq!(ray_hit.normal, DVec3::new(0.0, 0.0, 1.0));
+    }
+
+    #[test]
+    fn test_aabb() {
+        let x_loc = 1.0;
+        let y_loc = 0.0;
+        let z_loc = -1.0;
+        let rad = 0.5;
+
+        // TODO: implement NullMat or something similar
+        let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
+        let s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, mat);
+
+        let expected_min = DVec3::new(x_loc - rad, y_loc - rad, z_loc - rad);
+        let expected_max = DVec3::new(x_loc + rad, y_loc + rad, z_loc + rad);
+        // TODO: figure out how to implement == for this
+        assert_eq!(s.aabb().min, expected_min);
+        assert_eq!(s.aabb().max, expected_max);
     }
 }

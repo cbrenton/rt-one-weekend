@@ -2,7 +2,7 @@ mod sphere;
 mod triangle;
 mod triangle_mesh;
 
-use crate::util::{DInterval, Material, Ray};
+use crate::util::{Bounds3, DInterval, Material, Ray};
 use glam::DVec3;
 use std::{any::type_name_of_val, sync::Arc};
 
@@ -14,6 +14,9 @@ pub use triangle_mesh::TriangleMesh;
 pub trait Hittable {
     fn hit(&self, ray: &Ray, ray_t: DInterval) -> Option<HitRecord>;
     fn debug(&self);
+    fn aabb(&self) -> Bounds3 {
+        Bounds3::UNIVERSE
+    }
 }
 
 // TODO: move this elsewhere?
@@ -84,5 +87,18 @@ impl Hittable for HittableList {
 
     fn debug(&self) {
         println!("HittableList");
+    }
+
+    fn aabb(&self) -> Bounds3 {
+        Bounds3 {
+            min: self
+                .objects
+                .iter()
+                .fold(DVec3::MAX, |cur_min, obj| cur_min.min(obj.aabb().min)),
+            max: self
+                .objects
+                .iter()
+                .fold(DVec3::MIN, |cur_max, obj| cur_max.max(obj.aabb().max)),
+        }
     }
 }
