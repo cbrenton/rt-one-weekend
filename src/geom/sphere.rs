@@ -1,3 +1,4 @@
+use assert_approx_eq::assert_approx_eq;
 use std::{f64::consts::PI, sync::Arc};
 
 use crate::util::{DInterval, Material, Ray};
@@ -63,5 +64,31 @@ impl Hittable for Sphere {
             "Sphere with radius {} at center {}",
             self.radius, self.center
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::util::{Color, Lambertian};
+
+    use super::*;
+
+    #[test]
+    fn test_hit_happy_path() {
+        let x_loc = 0.0;
+        let y_loc = 0.0;
+        let z_loc = -1.0;
+        let rad = 0.5;
+
+        let _mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
+        let s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, _mat);
+
+        let ray = Ray::new(DVec3::ZERO, DVec3::new(0.0, 0.0, -1.0));
+        let ray_t = DInterval::UNIVERSE;
+
+        let ray_hit = s.hit(&ray, ray_t).unwrap();
+        assert_approx_eq!(ray_hit.t, 0.5);
+        assert_eq!(ray_hit.point, DVec3::new(0.0, 0.0, -0.5));
+        assert_eq!(ray_hit.normal, DVec3::new(0.0, 0.0, 1.0));
     }
 }
