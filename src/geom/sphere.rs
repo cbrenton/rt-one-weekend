@@ -1,4 +1,3 @@
-use assert_approx_eq::assert_approx_eq;
 use std::{f64::consts::PI, sync::Arc};
 
 use crate::util::{DInterval, Material, Ray};
@@ -69,6 +68,8 @@ impl Hittable for Sphere {
 
 #[cfg(test)]
 mod tests {
+    use assert_approx_eq::assert_approx_eq;
+
     use crate::util::{Color, Lambertian};
 
     use super::*;
@@ -80,8 +81,8 @@ mod tests {
         let z_loc = -1.0;
         let rad = 0.5;
 
-        let _mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
-        let s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, _mat);
+        let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
+        let s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, mat);
 
         let ray = Ray::new(DVec3::ZERO, DVec3::new(0.0, 0.0, -1.0));
         let ray_t = DInterval::UNIVERSE;

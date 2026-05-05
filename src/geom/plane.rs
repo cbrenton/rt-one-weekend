@@ -51,9 +51,9 @@ mod tests {
     fn test_hit_happy_path_camera_facing() {
         let point = DVec3::new(1.0, 1.0, 1.0);
         let normal = DVec3::new(0.0, 0.0, -1.0);
-        let _mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
+        let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
 
-        let p = Plane::new(point, normal, _mat);
+        let p = Plane::new(point, normal, mat);
 
         let ray = Ray::new(DVec3::ZERO, DVec3::new(0.0, 0.0, 1.0));
         let ray_t = DInterval::UNIVERSE;
