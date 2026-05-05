@@ -143,3 +143,34 @@ impl Hittable for TriangleMesh {
         );
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use assert_approx_eq::assert_approx_eq;
+
+    use crate::util::{Color, Lambertian};
+
+    use super::*;
+
+    #[test]
+    fn test_hit_happy_path() {
+        let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
+        let mesh = TriangleMesh::new(
+            vec![
+                DVec3::new(-1.0, -1.0, 1.0),
+                DVec3::new(-1.0, 1.0, 1.0),
+                DVec3::new(1.0, 1.0, 1.0),
+            ],
+            vec![IVec3::new(0, 1, 2)],
+            false,
+            mat,
+        );
+
+        let ray = Ray::new(DVec3::ZERO, DVec3::new(0.0, 0.0, 1.0));
+        let ray_hit = mesh.hit(&ray, DInterval::UNIVERSE).unwrap();
+
+        assert_approx_eq!(ray_hit.t, 1.0);
+        assert_eq!(ray_hit.point, DVec3::new(0.0, 0.0, 1.0));
+        assert_eq!(ray_hit.normal, DVec3::new(0.0, 0.0, -1.0));
+    }
+}
