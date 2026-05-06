@@ -14,6 +14,7 @@ pub struct TriangleMesh {
     is_inlined: bool,
     cache: Vec<Triangle>,
     mat: Arc<dyn Material>,
+    aabb: Bounds3,
 }
 
 impl TriangleMesh {
@@ -31,12 +32,25 @@ impl TriangleMesh {
             let tri = Triangle::new(a, b, c, mat.clone());
             cache.push(tri);
         }
+        let aabb = match is_inlined {
+            true => Bounds3::UNIVERSE,
+            false => Bounds3 {
+                min: cache
+                    .iter_mut()
+                    .fold(DVec3::MAX, |cur_min, tri| cur_min.min(tri.aabb().min)),
+                max: cache
+                    .iter_mut()
+                    .fold(DVec3::MIN, |cur_max, tri| cur_max.max(tri.aabb().max)),
+            },
+        };
+
         Self {
             vertices,
             triangles,
             is_inlined,
             cache,
             mat,
+            aabb,
         }
     }
 
@@ -135,22 +149,22 @@ impl Hittable for TriangleMesh {
     }
 
     // TODO: cache this
-    fn aabb(&mut self) -> Bounds3 {
+    fn aabb(&self) -> Bounds3 {
         // TODO: make this work when inlined
         if self.is_inlined {
             Bounds3::UNIVERSE
         } else {
-            for tri in &mut self.cache {
+            for tri in &self.cache {
                 println!("triangle bounding box: {:?}", tri.aabb())
             }
             Bounds3 {
                 min: self
                     .cache
-                    .iter_mut()
+                    .iter()
                     .fold(DVec3::MAX, |cur_min, tri| cur_min.min(tri.aabb().min)),
                 max: self
                     .cache
-                    .iter_mut()
+                    .iter()
                     .fold(DVec3::MIN, |cur_max, tri| cur_max.max(tri.aabb().max)),
             }
         }

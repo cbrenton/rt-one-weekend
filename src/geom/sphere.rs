@@ -9,14 +9,17 @@ pub struct Sphere {
     center: DVec3,
     radius: f64,
     mat: Arc<dyn Material>,
+    aabb: Bounds3,
 }
 
 impl Sphere {
     pub fn new(center: DVec3, radius: f64, mat: Arc<dyn Material>) -> Self {
+        let aabb = Bounds3::new(center - radius, center + radius);
         Self {
             center,
             radius: f64::max(0.0, radius),
             mat,
+            aabb,
         }
     }
 }
@@ -59,11 +62,8 @@ impl Hittable for Sphere {
     }
 
     // TODO: cache this
-    fn aabb(&mut self) -> Bounds3 {
-        Bounds3 {
-            min: self.center - self.radius,
-            max: self.center + self.radius,
-        }
+    fn aabb(&self) -> Bounds3 {
+        self.aabb
     }
 
     fn debug(&self) {
@@ -110,7 +110,7 @@ mod tests {
 
         // TODO: implement NullMat or something similar
         let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
-        let mut s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, mat);
+        let s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, mat);
 
         let expected_min = DVec3::new(x_loc - rad, y_loc - rad, z_loc - rad);
         let expected_max = DVec3::new(x_loc + rad, y_loc + rad, z_loc + rad);

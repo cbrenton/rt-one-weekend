@@ -14,8 +14,7 @@ pub use triangle_mesh::TriangleMesh;
 pub trait Hittable {
     fn hit(&self, ray: &Ray, ray_t: DInterval) -> Option<HitRecord>;
     fn debug(&self);
-    // TODO: is there a better way to do this? maybe construct on initialization?
-    fn aabb(&mut self) -> Bounds3 {
+    fn aabb(&self) -> Bounds3 {
         Bounds3::UNIVERSE
     }
 }
@@ -60,6 +59,7 @@ impl HitRecord {
 #[derive(Default)]
 pub struct HittableList {
     objects: Vec<Box<dyn Hittable>>,
+    aabb: Bounds3,
 }
 
 impl HittableList {
@@ -68,6 +68,9 @@ impl HittableList {
     }
 
     pub fn add(&mut self, other: impl Hittable + 'static) {
+        // TODO: not sure how this will impact performance, may need to take another approach for
+        // large scene sizes
+        self.aabb = Bounds3::combined(&self.aabb(), &other.aabb());
         self.objects.push(Box::new(other));
     }
 }
@@ -90,16 +93,7 @@ impl Hittable for HittableList {
         println!("HittableList");
     }
 
-    fn aabb(&mut self) -> Bounds3 {
-        Bounds3 {
-            min: self
-                .objects
-                .iter_mut()
-                .fold(DVec3::MAX, |cur_min, obj| cur_min.min(obj.aabb().min)),
-            max: self
-                .objects
-                .iter_mut()
-                .fold(DVec3::MIN, |cur_max, obj| cur_max.max(obj.aabb().max)),
-        }
+    fn aabb(&self) -> Bounds3 {
+        self.aabb
     }
 }
