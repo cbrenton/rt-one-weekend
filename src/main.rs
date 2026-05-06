@@ -8,7 +8,6 @@ use std::env::args;
 use camera::Camera;
 
 fn main() {
-    // let scene_data = scenes::sample();
     let scene_data = match args().nth(1) {
         Some(arg) => match arg.as_str() {
             "1" => scenes::sample(),

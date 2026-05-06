@@ -175,21 +175,6 @@ impl Camera {
                 Color::ZERO
             }
         } else {
-            /*
-            let unit_direction = ray.direction().normalize();
-
-            // calculate how "up" y is, on a scale of 0 to 1 (add 1 to convert -1..1 -> 0..2, then
-            // multiply by 0.5 to get 0..1)
-            let upness = 0.5 * (unit_direction.y + 1.0);
-
-            let white = Color::new(1.0, 1.0, 1.0);
-            let sky_blue = Color::new(0.5, 0.7, 1.0);
-
-            // lerp between white and a light blue, based on how "up" the ray is pointing, to get a
-            // white sky when the ray is completely downward-facing or a blue sky when it's
-            // completely upward facing (or in between for most sky-intersecting rays from camera)
-            (1.0 - upness) * white + upness * sky_blue
-            */
             self.config.background
         }
     }
