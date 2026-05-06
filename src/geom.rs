@@ -14,7 +14,8 @@ pub use triangle_mesh::TriangleMesh;
 pub trait Hittable {
     fn hit(&self, ray: &Ray, ray_t: DInterval) -> Option<HitRecord>;
     fn debug(&self);
-    fn aabb(&self) -> Bounds3 {
+    // TODO: is there a better way to do this? maybe construct on initialization?
+    fn aabb(&mut self) -> Bounds3 {
         Bounds3::UNIVERSE
     }
 }
@@ -89,15 +90,15 @@ impl Hittable for HittableList {
         println!("HittableList");
     }
 
-    fn aabb(&self) -> Bounds3 {
+    fn aabb(&mut self) -> Bounds3 {
         Bounds3 {
             min: self
                 .objects
-                .iter()
+                .iter_mut()
                 .fold(DVec3::MAX, |cur_min, obj| cur_min.min(obj.aabb().min)),
             max: self
                 .objects
-                .iter()
+                .iter_mut()
                 .fold(DVec3::MIN, |cur_max, obj| cur_max.max(obj.aabb().max)),
         }
     }

@@ -134,22 +134,23 @@ impl Hittable for TriangleMesh {
         result
     }
 
-    fn aabb(&self) -> Bounds3 {
+    // TODO: cache this
+    fn aabb(&mut self) -> Bounds3 {
         // TODO: make this work when inlined
         if self.is_inlined {
             Bounds3::UNIVERSE
         } else {
-            for tri in &self.cache {
+            for tri in &mut self.cache {
                 println!("triangle bounding box: {:?}", tri.aabb())
             }
             Bounds3 {
                 min: self
                     .cache
-                    .iter()
+                    .iter_mut()
                     .fold(DVec3::MAX, |cur_min, tri| cur_min.min(tri.aabb().min)),
                 max: self
                     .cache
-                    .iter()
+                    .iter_mut()
                     .fold(DVec3::MIN, |cur_max, tri| cur_max.max(tri.aabb().max)),
             }
         }
@@ -214,7 +215,7 @@ mod tests {
         let c = DVec3::new(1.0, 1.0, 1.0);
         let d = DVec3::new(1.0, -1.0, 1.0);
 
-        let mesh = TriangleMesh::new(
+        let mut mesh = TriangleMesh::new(
             vec![a, b, c, d],
             vec![IVec3::new(0, 1, 2), IVec3::new(2, 3, 0)],
             false,

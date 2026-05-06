@@ -58,7 +58,8 @@ impl Hittable for Sphere {
         Some(rec)
     }
 
-    fn aabb(&self) -> Bounds3 {
+    // TODO: cache this
+    fn aabb(&mut self) -> Bounds3 {
         Bounds3 {
             min: self.center - self.radius,
             max: self.center + self.radius,
@@ -109,7 +110,7 @@ mod tests {
 
         // TODO: implement NullMat or something similar
         let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
-        let s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, mat);
+        let mut s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, mat);
 
         let expected_min = DVec3::new(x_loc - rad, y_loc - rad, z_loc - rad);
         let expected_max = DVec3::new(x_loc + rad, y_loc + rad, z_loc + rad);

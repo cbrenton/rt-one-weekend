@@ -10,11 +10,18 @@ pub struct Triangle {
     b: DVec3,
     c: DVec3,
     mat: Arc<dyn Material>,
+    _aabb: Option<Bounds3>,
 }
 
 impl Triangle {
     pub fn new(a: DVec3, b: DVec3, c: DVec3, mat: Arc<dyn Material>) -> Self {
-        Self { a, b, c, mat }
+        Self {
+            a,
+            b,
+            c,
+            mat,
+            _aabb: None,
+        }
     }
 }
 
@@ -72,11 +79,17 @@ impl Hittable for Triangle {
         Some(rec)
     }
 
-    fn aabb(&self) -> Bounds3 {
-        let pts = [self.a, self.b, self.c];
-        Bounds3 {
-            min: pts.iter().fold(DVec3::MAX, |cur_min, &pt| cur_min.min(pt)),
-            max: pts.iter().fold(DVec3::MIN, |cur_max, &pt| cur_max.max(pt)),
+    fn aabb(&mut self) -> Bounds3 {
+        match self._aabb {
+            Some(val) => val,
+            None => {
+                let pts = [self.a, self.b, self.c];
+                self._aabb = Some(Bounds3 {
+                    min: pts.iter().fold(DVec3::MAX, |cur_min, &pt| cur_min.min(pt)),
+                    max: pts.iter().fold(DVec3::MIN, |cur_max, &pt| cur_max.max(pt)),
+                });
+                self._aabb.unwrap()
+            }
         }
     }
 
@@ -124,7 +137,7 @@ mod tests {
 
         // TODO: implement NullMat or something similar
         let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
-        let t = Triangle::new(a, b, c, mat);
+        let mut t = Triangle::new(a, b, c, mat);
 
         let expected_min = DVec3::new(-1.0, -1.0, 1.0);
         let expected_max = DVec3::new(1.0, 1.0, 1.0);
