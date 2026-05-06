@@ -3,7 +3,7 @@ use std::ops::{Add, Mul, Sub};
 pub type DInterval = Interval<f64>;
 pub type IInterval = Interval<i32>;
 
-#[derive(Copy, Clone, Default)]
+#[derive(Copy, Clone, Default, Debug)]
 pub struct Interval<T> {
     pub min: T,
     pub max: T,
