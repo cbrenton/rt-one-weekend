@@ -15,10 +15,11 @@ pub struct BVHNode<T: Hittable> {
 
 impl<T: Hittable> BVHNode<T> {
     fn new(prim: T) -> Self {
+        let aabb = prim.aabb();
         Self {
             children: vec![],
             prim: Arc::new(prim),
-            aabb: Default::default(),
+            aabb,
         }
     }
 
@@ -29,6 +30,10 @@ impl<T: Hittable> BVHNode<T> {
     fn add_child(&mut self, child: BVHNode<T>) {
         if self.children.len() < Self::MAX_CHILDREN {
             self.children.push(child);
+            println!("constructing BVHNode AABB");
+            self.aabb = self.children.iter().fold(self.prim.aabb(), |acc, x| {
+                Bounds3::combined(&acc, &x.aabb())
+            })
         } else {
             panic!("Attempted to add a child to an already full BVHNode");
         }
@@ -44,11 +49,7 @@ impl<T: Hittable> Hittable for BVHNode<T> {
     }
 
     fn aabb(&self) -> Bounds3 {
-        // TODO: cache this on child add
-        println!("constructing BVHNode AABB");
-        self.children.iter().fold(self.prim.aabb(), |acc, x| {
-            Bounds3::combined(&acc, &x.aabb())
-        })
+        self.aabb
     }
 
     fn debug(&self) {
