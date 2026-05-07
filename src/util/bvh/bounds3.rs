@@ -2,7 +2,7 @@ use glam::DVec3;
 
 use crate::util::{DInterval, Ray};
 
-#[derive(Default, Copy, Clone, Debug)]
+#[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub struct Bounds3 {
     pub min: DVec3,
     pub max: DVec3,

@@ -5,6 +5,7 @@ use glam::DVec3;
 
 use super::{HitRecord, Hittable};
 
+#[derive(Clone)]
 pub struct Sphere {
     center: DVec3,
     radius: f64,
@@ -18,6 +19,8 @@ impl Sphere {
         Self {
             center,
             radius: f64::max(0.0, radius),
+            // TODO: should I make this (and all other geometry) take the mat as a reference to an
+            // Arc and clone here?
             mat,
             aabb,
         }
@@ -115,7 +118,6 @@ mod tests {
         let expected_min = DVec3::new(x_loc - rad, y_loc - rad, z_loc - rad);
         let expected_max = DVec3::new(x_loc + rad, y_loc + rad, z_loc + rad);
         // TODO: figure out how to implement == for this
-        assert_eq!(s.aabb().min, expected_min);
-        assert_eq!(s.aabb().max, expected_max);
+        assert_eq!(s.aabb(), Bounds3::new(expected_min, expected_max));
     }
 }
