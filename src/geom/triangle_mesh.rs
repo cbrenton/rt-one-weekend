@@ -32,6 +32,7 @@ impl TriangleMesh {
             let tri = Triangle::new(a, b, c, mat.clone());
             cache.push(tri);
         }
+        println!("constructing TriangleMesh AABB");
         let aabb = match is_inlined {
             true => Bounds3::UNIVERSE,
             false => Bounds3 {

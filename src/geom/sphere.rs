@@ -15,6 +15,7 @@ pub struct Sphere {
 
 impl Sphere {
     pub fn new(center: DVec3, radius: f64, mat: Arc<dyn Material>) -> Self {
+        println!("constructing Sphere AABB");
         let aabb = Bounds3::new(center - radius, center + radius);
         Self {
             center,

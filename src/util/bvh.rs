@@ -41,6 +41,7 @@ impl<T: Hittable> Hittable for BVHNode<T> {
 
     fn aabb(&self) -> Bounds3 {
         // TODO: cache this on child add
+        println!("constructing BVHNode AABB");
         self.children.iter().fold(self.prim.aabb(), |acc, x| {
             Bounds3::combined(&acc, &x.aabb())
         })
