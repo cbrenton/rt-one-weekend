@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use glam::DVec3;
+use mockall::automock;
 
 use crate::util::{DInterval, Ray};
 
@@ -10,6 +11,7 @@ pub struct Bounds3 {
     pub max: DVec3,
 }
 
+#[automock]
 impl Bounds3 {
     pub fn new(min: DVec3, max: DVec3) -> Self {
         Self { min, max }
@@ -24,12 +26,12 @@ impl Bounds3 {
         result
     }
 
-    pub const EMPTY: Self = Self {
+    pub const EMPTY: Bounds3 = Bounds3 {
         min: DVec3::MAX,
         max: DVec3::MIN,
     };
 
-    pub const UNIVERSE: Self = Self {
+    pub const UNIVERSE: Bounds3 = Bounds3 {
         min: DVec3::MIN,
         max: DVec3::MAX,
     };

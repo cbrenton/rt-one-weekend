@@ -8,4 +8,5 @@ assert_approx_eq = "1.1.0"
 glam = "0.32.1"
 image = { version = "0.25.10", default-features = false, features = ["png"] }
 kdam = "0.6.4"
+mockall = "0.14.0"
 rand = "0.10.1"

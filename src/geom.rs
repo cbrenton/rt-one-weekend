@@ -6,6 +6,7 @@ mod triangle_mesh;
 
 use crate::util::{Bounds3, DInterval, Material, Ray};
 use glam::DVec3;
+use mockall::automock;
 use std::sync::Arc;
 
 pub use sphere::Sphere;
@@ -13,6 +14,7 @@ pub use triangle::Triangle;
 pub use triangle_mesh::TriangleMesh;
 
 // TODO: move this elsewhere?
+#[automock]
 pub trait Hittable {
     fn hit(&self, ray: &Ray, ray_t: DInterval) -> Option<HitRecord>;
     fn debug(&self);
