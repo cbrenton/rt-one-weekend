@@ -152,21 +152,9 @@ impl Hittable for TriangleMesh {
     fn aabb(&self) -> Bounds3 {
         // TODO: make this work when inlined
         if self.is_inlined {
-            Bounds3::UNIVERSE
+            todo!();
         } else {
-            for tri in &self.cache {
-                println!("triangle bounding box: {:?}", tri.aabb())
-            }
-            Bounds3 {
-                min: self
-                    .cache
-                    .iter()
-                    .fold(DVec3::MAX, |cur_min, tri| cur_min.min(tri.aabb().min)),
-                max: self
-                    .cache
-                    .iter()
-                    .fold(DVec3::MIN, |cur_max, tri| cur_max.max(tri.aabb().max)),
-            }
+            self.aabb
         }
     }
 
