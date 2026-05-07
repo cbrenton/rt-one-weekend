@@ -4,7 +4,10 @@ use std::sync::Arc;
 
 pub use bounds3::Bounds3;
 
-use crate::geom::Hittable;
+use crate::{
+    geom::{HitRecord, Hittable},
+    util::DInterval,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BVHNode<T: Hittable> {
@@ -44,8 +47,30 @@ impl<T: Hittable> BVHNode<T> {
 
 impl<T: Hittable> Hittable for BVHNode<T> {
     fn hit(&self, ray: &super::Ray, ray_t: super::DInterval) -> Option<crate::geom::HitRecord> {
-        // TODO: combine with Bounds3::intersected_by or refactor it to move it here
-        todo!();
+        let mut closest_so_far = ray_t.max;
+        let mut result: Option<HitRecord> = None;
+
+        // check intersection with prim
+        if let Some(rec) = self
+            .prim
+            .hit(ray, DInterval::new(ray_t.min, closest_so_far))
+        {
+            closest_so_far = rec.t;
+            result = Some(rec);
+        }
+
+        // check each child recursively
+        for object in &self.children {
+            let cur_ray_t = DInterval::new(ray_t.min, closest_so_far);
+            // if intersects AABB and hits some object in heirarchy:
+            if object.aabb().intersected_by(ray, cur_ray_t)
+                && let Some(rec) = object.hit(ray, cur_ray_t)
+            {
+                closest_so_far = rec.t;
+                result = Some(rec);
+            }
+        }
+        result
     }
 
     fn aabb(&self) -> Bounds3 {
@@ -63,11 +88,12 @@ impl<T: Hittable> Hittable for BVHNode<T> {
 
 #[cfg(test)]
 mod tests {
+    use assert_approx_eq::assert_approx_eq;
     use glam::DVec3;
 
     use crate::{
         geom::Sphere,
-        util::{Color, Lambertian},
+        util::{Color, Lambertian, Ray, null_material_ptr},
     };
 
     use super::*;
@@ -178,5 +204,42 @@ mod tests {
         let expected_max = DVec3::new(1.5, 1.5, 1.5);
         let expected_aabb = Bounds3::new(expected_min, expected_max);
         assert_eq!(node.aabb(), expected_aabb);
+    }
+
+    #[test]
+    fn test_hit_with_no_children_not_intersecting_with_prim_returns_empty() {
+        let s = Sphere::new(DVec3::ZERO, 0.1, null_material_ptr());
+
+        let node = BVHNode::new(s);
+
+        let ray = Ray::new(DVec3::ONE, DVec3::new(0.0, 0.0, -1.0));
+        let ray_t = DInterval::UNIVERSE;
+
+        assert!(node.hit(&ray, ray_t).is_none());
+    }
+
+    #[test]
+    fn test_hit_intersects_prim_returns_prim_hit() {
+        let x_loc = 0.0;
+        let y_loc = 0.0;
+        let z_loc = -1.0;
+        let rad = 0.5;
+
+        // TODO: add mocking so I don't have to keep calculating these things
+        let s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, null_material_ptr());
+        let node = BVHNode::new(s);
+
+        let ray = Ray::new(DVec3::ZERO, DVec3::new(0.0, 0.0, -1.0));
+        let ray_t = DInterval::UNIVERSE;
+
+        let ray_hit = node.hit(&ray, ray_t).unwrap();
+        assert_approx_eq!(ray_hit.t, 0.5);
+        assert_eq!(ray_hit.point, DVec3::new(0.0, 0.0, -0.5));
+        assert_eq!(ray_hit.normal, DVec3::new(0.0, 0.0, 1.0));
+    }
+
+    #[test]
+    fn test_hit_intersects_child_returns_child_hit() {
+        // TODO
     }
 }
