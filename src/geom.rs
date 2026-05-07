@@ -4,7 +4,7 @@ mod triangle_mesh;
 
 use crate::util::{Bounds3, DInterval, Material, Ray};
 use glam::DVec3;
-use std::{any::type_name_of_val, sync::Arc};
+use std::sync::Arc;
 
 pub use sphere::Sphere;
 pub use triangle::Triangle;

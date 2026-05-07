@@ -173,7 +173,7 @@ impl Hittable for TriangleMesh {
 mod tests {
     use assert_approx_eq::assert_approx_eq;
 
-    use crate::util::{Color, Lambertian, null_material_ptr};
+    use crate::util::null_material_ptr;
 
     use super::*;
 
@@ -213,7 +213,7 @@ mod tests {
         let c = DVec3::new(1.0, 1.0, 1.0);
         let d = DVec3::new(1.0, -1.0, 1.0);
 
-        let mut mesh = TriangleMesh::new(
+        let mesh = TriangleMesh::new(
             vec![a, b, c, d],
             vec![IVec3::new(0, 1, 2), IVec3::new(2, 3, 0)],
             false,

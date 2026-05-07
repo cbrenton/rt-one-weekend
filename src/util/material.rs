@@ -13,7 +13,7 @@ pub struct ScatterData {
 }
 
 pub trait Material {
-    fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<ScatterData> {
+    fn scatter(&self, _ray_in: &Ray, _rec: &HitRecord) -> Option<ScatterData> {
         None
     }
 

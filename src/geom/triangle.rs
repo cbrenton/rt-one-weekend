@@ -95,7 +95,7 @@ impl Hittable for Triangle {
 mod tests {
     use assert_approx_eq::assert_approx_eq;
 
-    use crate::util::{Color, Lambertian, null_material_ptr};
+    use crate::util::null_material_ptr;
 
     use super::*;
 
@@ -124,8 +124,7 @@ mod tests {
         let b = DVec3::new(-1.0, 1.0, 1.0);
         let c = DVec3::new(1.0, 1.0, 1.0);
 
-        // TODO: implement NullMat or something similar
-        let mut t = Triangle::new(a, b, c, null_material_ptr());
+        let t = Triangle::new(a, b, c, null_material_ptr());
 
         let expected_min = DVec3::new(-1.0, -1.0, 1.0);
         let expected_max = DVec3::new(1.0, 1.0, 1.0);

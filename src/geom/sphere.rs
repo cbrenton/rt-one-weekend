@@ -82,7 +82,7 @@ impl Hittable for Sphere {
 mod tests {
     use assert_approx_eq::assert_approx_eq;
 
-    use crate::util::{Color, Lambertian, NullMaterial, null_material_ptr};
+    use crate::util::null_material_ptr;
 
     use super::*;
 
