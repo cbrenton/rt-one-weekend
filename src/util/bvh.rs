@@ -6,9 +6,11 @@ pub use bounds3::Bounds3;
 
 use crate::geom::Hittable;
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct BVHNode<T: Hittable> {
     children: Vec<BVHNode<T>>,
     prim: Arc<T>,
+    aabb: Bounds3,
 }
 
 impl<T: Hittable> BVHNode<T> {
@@ -16,6 +18,7 @@ impl<T: Hittable> BVHNode<T> {
         Self {
             children: vec![],
             prim: Arc::new(prim),
+            aabb: Default::default(),
         }
     }
 
@@ -36,6 +39,7 @@ impl<T: Hittable> BVHNode<T> {
 
 impl<T: Hittable> Hittable for BVHNode<T> {
     fn hit(&self, ray: &super::Ray, ray_t: super::DInterval) -> Option<crate::geom::HitRecord> {
+        // TODO: combine with Bounds3::intersected_by or refactor it to move it here
         todo!();
     }
 

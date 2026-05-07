@@ -13,7 +13,10 @@ pub struct ScatterData {
 }
 
 pub trait Material {
-    fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<ScatterData>;
+    fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<ScatterData> {
+        None
+    }
+
     fn emitted(&self, _u: f64, _v: f64, _p: DVec3) -> Color {
         Color::ZERO
     }
@@ -159,4 +162,23 @@ impl Material for DiffuseLight {
     fn emitted(&self, u: f64, v: f64, p: DVec3) -> Color {
         self.tex.value(u, v, p)
     }
+}
+
+#[derive(Clone)]
+pub struct NullMaterial {}
+
+impl NullMaterial {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
+impl Material for NullMaterial {
+    fn scatter(&self, _ray_in: &Ray, _rec: &HitRecord) -> Option<ScatterData> {
+        None
+    }
+}
+
+pub fn null_material_ptr() -> Arc<NullMaterial> {
+    Arc::new(NullMaterial::new())
 }

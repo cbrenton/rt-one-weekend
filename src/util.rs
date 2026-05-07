@@ -10,7 +10,9 @@ pub use bvh::Bounds3;
 pub use canvas::Canvas;
 pub use color::Color;
 pub use interval::{DInterval, IInterval, Interval};
-pub use material::{Dielectric, DiffuseLight, Lambertian, Material, Metal};
+pub use material::{
+    Dielectric, DiffuseLight, Lambertian, Material, Metal, NullMaterial, null_material_ptr,
+};
 pub use ray::Ray;
 pub use texture::{CheckerTexture, SolidColor, Texture};
 

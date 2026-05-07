@@ -82,7 +82,7 @@ impl Hittable for Sphere {
 mod tests {
     use assert_approx_eq::assert_approx_eq;
 
-    use crate::util::{Color, Lambertian};
+    use crate::util::{Color, Lambertian, NullMaterial, null_material_ptr};
 
     use super::*;
 
@@ -93,8 +93,7 @@ mod tests {
         let z_loc = -1.0;
         let rad = 0.5;
 
-        let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
-        let s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, mat);
+        let s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, null_material_ptr());
 
         let ray = Ray::new(DVec3::ZERO, DVec3::new(0.0, 0.0, -1.0));
         let ray_t = DInterval::UNIVERSE;
@@ -112,9 +111,7 @@ mod tests {
         let z_loc = -1.0;
         let rad = 0.5;
 
-        // TODO: implement NullMat or something similar
-        let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
-        let s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, mat);
+        let s = Sphere::new(DVec3::new(x_loc, y_loc, z_loc), rad, null_material_ptr());
 
         let expected_min = DVec3::new(x_loc - rad, y_loc - rad, z_loc - rad);
         let expected_max = DVec3::new(x_loc + rad, y_loc + rad, z_loc + rad);

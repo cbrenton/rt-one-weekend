@@ -173,14 +173,12 @@ impl Hittable for TriangleMesh {
 mod tests {
     use assert_approx_eq::assert_approx_eq;
 
-    use crate::util::{Color, Lambertian};
+    use crate::util::{Color, Lambertian, null_material_ptr};
 
     use super::*;
 
     #[test]
     fn test_hit_happy_path() {
-        let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
-
         let a = DVec3::new(-1.0, -1.0, 1.0);
         let b = DVec3::new(-1.0, 1.0, 1.0);
         let c = DVec3::new(1.0, 1.0, 1.0);
@@ -190,7 +188,7 @@ mod tests {
             vec![a, b, c, d],
             vec![IVec3::new(0, 1, 2), IVec3::new(2, 3, 0)],
             false,
-            mat,
+            null_material_ptr(),
         );
 
         let ray_tri_1 = Ray::new(DVec3::ZERO, DVec3::new(-0.5, 0.5, 1.0));
@@ -210,9 +208,6 @@ mod tests {
 
     #[test]
     fn test_aabb() {
-        // TODO: implement NullMat or something similar
-        let mat = Arc::new(Lambertian::from_color(Color::new(0.1, 0.2, 0.5)));
-
         let a = DVec3::new(-1.0, -1.0, 1.0);
         let b = DVec3::new(-1.0, 1.0, 1.0);
         let c = DVec3::new(1.0, 1.0, 1.0);
@@ -222,7 +217,7 @@ mod tests {
             vec![a, b, c, d],
             vec![IVec3::new(0, 1, 2), IVec3::new(2, 3, 0)],
             false,
-            mat,
+            null_material_ptr(),
         );
 
         let expected_min = DVec3::new(-1.0, -1.0, 1.0);
