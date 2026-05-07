@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::{f64::consts::PI, sync::Arc};
 
 use crate::util::{Bounds3, DInterval, Material, Ray};

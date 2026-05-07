@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::sync::Arc;
 
 use crate::util::{ALMOST_ZERO, Bounds3, DInterval, Material, Ray};

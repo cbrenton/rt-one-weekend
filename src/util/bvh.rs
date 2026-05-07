@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod bounds3;
 
 use std::sync::Arc;

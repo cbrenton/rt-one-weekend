@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use glam::DVec3;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]

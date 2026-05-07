@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports)]
+
 mod sphere;
 mod triangle;
 mod triangle_mesh;

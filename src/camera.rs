@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::geom::{Hittable, HittableList};
 use crate::util::{ALMOST_ZERO, Canvas, Color, Interval, Ray, random_double, random_in_unit_disk};
 use glam::DVec3;
