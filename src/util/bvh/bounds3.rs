@@ -92,6 +92,17 @@ impl Bounds3 {
     pub fn centroid(&self) -> DVec3 {
         self.centroid
     }
+
+    // TODO: figure out if I want to cache this
+    pub fn diagonal(&self) -> DVec3 {
+        self.max - self.min
+    }
+
+    pub fn surface_area(&self) -> f64 {
+        let d = self.diagonal();
+
+        2.0 * (d.x * d.y + d.x * d.z + d.y * d.z)
+    }
 }
 
 #[cfg(test)]
@@ -314,5 +325,19 @@ mod tests {
 
         let neg_infinite = Bounds3::new(DVec3::ZERO, DVec3::NEG_INFINITY);
         assert_eq!(neg_infinite.centroid(), DVec3::NEG_INFINITY);
+    }
+
+    #[test]
+    fn test_diagonal_returns_correct_vector() {
+        assert_eq!(Bounds3::UNIT.diagonal(), DVec3::splat(2.0));
+        let offset_bounds = Bounds3::new(DVec3::ZERO, DVec3::ONE);
+        assert_eq!(offset_bounds.diagonal(), DVec3::splat(1.0));
+    }
+
+    #[test]
+    fn test_surface_area_returns_correct_surface_area() {
+        assert_eq!(Bounds3::UNIT.surface_area(), 24.0);
+        let rectangular_bounds = Bounds3::new(DVec3::ZERO, DVec3::new(1.0, 2.0, 3.0));
+        assert_eq!(rectangular_bounds.surface_area(), 22.0);
     }
 }
