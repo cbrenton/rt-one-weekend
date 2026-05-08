@@ -37,14 +37,14 @@ impl TriangleMesh {
         println!("constructing TriangleMesh AABB");
         let aabb = match is_inlined {
             true => Bounds3::UNIVERSE,
-            false => Bounds3 {
-                min: cache
+            false => Bounds3::new(
+                cache
                     .iter_mut()
                     .fold(DVec3::MAX, |cur_min, tri| cur_min.min(tri.aabb().min)),
-                max: cache
+                cache
                     .iter_mut()
                     .fold(DVec3::MIN, |cur_max, tri| cur_max.max(tri.aabb().max)),
-            },
+            ),
         };
 
         Self {
