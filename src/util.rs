@@ -8,7 +8,7 @@ mod material;
 mod ray;
 mod texture;
 
-pub use bvh::Bounds3;
+pub use bvh::{BVHNode, Bounds3};
 pub use canvas::Canvas;
 pub use color::Color;
 pub use interval::{DInterval, IInterval, Interval};

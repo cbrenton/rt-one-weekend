@@ -19,7 +19,7 @@ pub struct BVHNode<T: Hittable> {
 }
 
 impl<T: Hittable> BVHNode<T> {
-    fn new(prim: T) -> Self {
+    pub fn new(prim: T) -> Self {
         let aabb = prim.aabb();
         Self {
             children: vec![],
@@ -28,11 +28,11 @@ impl<T: Hittable> BVHNode<T> {
         }
     }
 
-    fn is_leaf(&self) -> bool {
+    pub fn is_leaf(&self) -> bool {
         self.children.is_empty()
     }
 
-    fn add_child(&mut self, child: BVHNode<T>) {
+    pub fn add_child(&mut self, child: BVHNode<T>) {
         if self.children.len() < Self::MAX_CHILDREN {
             self.children.push(child);
             println!("constructing BVHNode AABB");
@@ -44,11 +44,11 @@ impl<T: Hittable> BVHNode<T> {
         }
     }
 
-    fn intersected_by(&self, ray: &Ray, ray_t: DInterval) -> bool {
+    pub fn intersected_by(&self, ray: &Ray, ray_t: DInterval) -> bool {
         self.aabb.intersected_by(ray, ray_t)
     }
 
-    fn aabb(&self) -> Bounds3 {
+    pub fn aabb(&self) -> Bounds3 {
         self.aabb
     }
 
